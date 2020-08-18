@@ -1,0 +1,19 @@
+{
+  "intro1" : "Briefing de mission : Vous avez reçu l'information que ",
+  "intro2" : " agents parmi les ",
+  "intro3" : " présents sont des agents doubles travaillant pour le VIRUS ! Votre briefing vous dira pour quelle agence vous travaillez ainsi que votre objectif. Vous ne pourrez mettre qu'une seule personne derrière les barreaux, donc soyez sûr de faire le bon choix. Mémorisez les noms des autres, prenez note des symboles des deux agences et découvrez qui ment sur son identité.\n\n",
+  "roleliste" : "Il y a ",
+  "role0" : " agents du VIRUS. Pour gagner vous devez emprisonner l’une de leur recrues.\n",
+  "role1" : " agents du virus travaillant avec vous : \n",
+  "role1110" : "Pour le moment, vous travaillez pour le VIRUS. Votre mission est de ne pas être découvert et de faire en sorte que le service emprisonne l’un des leurs. ",
+  "role1111" : "Pour le moment, vous travaillez pour le VIRUS. Votre mission est de ne pas être découvert et de faire en sorte que le service emprisonne l’un des leurs.\nLoyal au VIRUS : Vous êtes loyal au VIRUS. Toute opération qui tente de vous faire changer de camp sera annulée. ",
+  "role1100" : "Pour le moment, vous travaillez pour le VIRUS. Votre mission est de ne pas être découvert et de faire en sorte que le service emprisonne l’un des leurs.\nAgent Renégat : Vous êtes un renégat. Les autres agents ne savent pas que vous êtes des leurs. ",
+  "role1010" : "Pour le moment, vous travaillez pour le VIRUS. Votre mission est de ne pas être découvert et de faire en sorte que le service emprisonne l’un des leurs.\nAgent infiltré : Vous agissez sous couverture. Si quelqu’un essaie de vérifier pour qui vous travaillez, il vous verra comme un agent du Service. ",
+  "role0000" : "Pour le moment, vous travaillez pour Le Service. ",
+  "role0001" : "Loyal au Service : Vous êtes loyal au Service. Toute opération qui tente de vous faire changer de camp sera annulée. ",
+  "role0010" : "Triple Agent : Vous êtes un Agent Triple. Les autres agents du VIRUS présent que vous faites parti de leur camp, alors qu’en réalité, vous travaillez pour Le Service. ",
+  "role0100" : "Agent suspect : Votre passé vous lie à des affaires louches. Si quelqu’un essaie de vérifier pour qui vous travaillez, il vous verra comme un agent du VIRUS. ",
+  "msgTropVirus" : " Hum… Il y a plus de noms dans cette liste qu’il ne devrait y en avoir.",
+  "msgPasAssezVirus" : " Hum… Il n’y a pas suffisamment de noms dans cette liste.",
+  "phaseOperation" : "Debut de la phase d'opération : Chaque personne effectuera une opération, suivit de 2 minutes de débat, avant de passer à la phase d’accusation."
+}

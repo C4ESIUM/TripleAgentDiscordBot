@@ -1,0 +1,17 @@
+{
+  "name": "bottripleagent",
+  "version": "1.0.0",
+  "description": "Jeu Triple Agent sur Discord",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Raphael",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^12.3.1"
+  }
+}
