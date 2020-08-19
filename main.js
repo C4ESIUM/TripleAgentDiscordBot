@@ -6,10 +6,11 @@ const { intro1, intro2, intro3 ,
   msgTropVirus, msgPasAssezVirus, partieSecreteDebut, partieSecreteFin,
   phaseOperation, infiltrationIntro, informateurSecretIntro, rensignementDanoisIntro, transfertIntro, anciennePhotoIntro, infoAnonymeIntro, confessionIntro, mauvaiseRencontreIntro, preuveCompromettanteIntro, deserteurIntro, dossierSecretIntro,
 
-  phaseAccusation,
+  phaseDeDiscution, phaseAccusation,
 } = require('./texteTripleAgent.json')
 
 const attenteSimple = 1000
+const attenteLongue = 3000
 
 const minJoueur = 1
 const maxJoueur = 9
@@ -219,8 +220,11 @@ bot.on('message', async message => {
 
 
 //PHASE D'OPERATION !
+        let recapOpe = [];                              //déclaration du tableau de récap
+        let recap = ``;                                 //déclaration du texte de récap
         for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs
           await bot.users.cache.get(membersId[i]).send(`${phaseOperation}`);    //envoi du message de phase d'opération a chaque joueur
+          recapOpe[i] = ``;
         }// Fin de parcours de la liste des joueurs
                   //WAIT 3s
         waitSeconds(attenteSimple);
@@ -240,7 +244,11 @@ bot.on('message', async message => {
 
         //Distribution des informations
         for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs
-            ope = getRandomInt(10000);
+            let ope = getRandomInt(10000);
+            let agent
+            do {
+              agent = getRandomInt(nombreJoueurs);
+            }while (recapOpe[agent] != ``)
             console.log(ope);
             let j=0;
             indiceOperation=0;
@@ -248,14 +256,21 @@ bot.on('message', async message => {
               j++;
               if(matriceOpe[j+1][1] > 0 ) {indiceOperation=j;}
             }
+            recapOpe[agent] = matriceOpe[indiceOperation][0];
             for (let j = 0; j < nombreJoueurs; j++) {                //parcours tous les joueurs
-              await bot.users.cache.get(membersId[j]).send(`${matriceOpe[indiceOperation][0]}${membersName[j]}${matriceOpe[indiceOperation][5]}`);    //envoi du type d'opération a chaque joueur
+              await bot.users.cache.get(membersId[j]).send(`${matriceOpe[indiceOperation][0]}${membersName[i]}${matriceOpe[indiceOperation][5]}`);    //envoi du type d'opération a chaque joueur
             }// Fin de parcours de la liste des joueurs
             await bot.users.cache.get(membersId[i]).send(`${partieSecreteDebut} ... ${partieSecreteFin}`);    //envoi de l'opération au joueur concerné
           //WAIT 3s
+          recap = recap + recapOpe[agent] + membersName[agent] + `\n`;
           waitSeconds(attenteSimple);
         }// Fin de parcours de la liste des joueurs
 
+//PHASE DE DISCUTION !
+        for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs
+          await bot.users.cache.get(membersId[i]).send(`${phaseDeDiscution}${recap}`);    //envoi du message de phase d'opération a chaque joueur
+        }// Fin de parcours de la liste des joueurs
+        waitSeconds(attenteLongue);
 
 //PHASE D'ACCUSATION !
         for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs

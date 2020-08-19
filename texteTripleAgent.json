@@ -30,7 +30,7 @@
   "deserteurIntro" : " peut déserter son équipe et rejoindre l’adversaire. Un déserteur du VIRUS perds la partie s’il reçoit un vote d’un autre membre du VIRUS. Un déserteur du Service ne peux pas voter.",
   "dossierSecretIntro" : " reçoit des ordres de ses supérieurs. Il ou elle pourrait changer de camp, recevoir une nouvelle condition de victoire ou obtenir une information à propos d’un autre agent.",
 
-
+  "phaseDeDiscution" : "Debut de la phase de discution : Vous avez maintenant 2 minutes pour discuter de vos sourçons. Quand le temps sera écoulé, vous voterez secretement pour un agent. L’agent qui reçoit le plus de votes contre lui sera emprisonné et son agence perdra. En cas d'égalité, personne n'est emprisonné et le VIRUS gagne, sauf s'il n'y a plus d'agents du VIRUS en jeu.\nRécapitulatif des opérations : \n",
   "phaseAccusation" : "Debut de la phase d'accusation : L’agent qui reçoit le plus de votes contre lui sera emprisonné. Si c’est un agent double du Virus, Le Service gagne, sinon les agents du VIRUS gagnent.",
   "" : ""
 }
