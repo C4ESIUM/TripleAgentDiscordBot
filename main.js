@@ -1,7 +1,13 @@
 const Discord = require('discord.js');
 const bot = new Discord.Client();
 const { prefix, token } = require('./config.json')
-const { intro1, intro2, intro3 , roleliste, role0, role1, role1110, role1111, role1100, role1010, role0000, role0001, role0010, role0100, msgTropVirus, msgPasAssezVirus, phaseOperation} = require('./texteTripleAgent.json')
+const { intro1, intro2, intro3 ,
+  roleliste, role0, role1, role1110, role1111, role1100, role1010, role0000, role0001, role0010, role0100,
+  msgTropVirus, msgPasAssezVirus, partieSecreteDebut, partieSecreteFin,
+  phaseOperation, infiltrationIntro, informateurSecretIntro, rensignementDanoisIntro, transfertIntro, anciennePhotoIntro, infoAnonymeIntro, confessionIntro, mauvaiseRencontreIntro, preuveCompromettanteIntro, deserteurIntro, dossierSecretIntro,
+
+  phaseAccusation,
+} = require('./texteTripleAgent.json')
 
 const attenteSimple = 1000
 
@@ -13,50 +19,65 @@ nombreOpe = 0;
 
 let matriceOpe = [];                 //déclaration de la matrice des opérations
 matriceOpe[0] = [];
-matriceOpe[0][0] = `infiltration`;
+matriceOpe[0][0] = `Infiltration : `;
 matriceOpe[0][1] = 1;
+matriceOpe[0][5] = infiltrationIntro;
 matriceOpe[1] = [];
-matriceOpe[1][0] = `informateur secret`;
+matriceOpe[1][0] = `Informateur Secret : `;
 matriceOpe[1][1] = 2;
+matriceOpe[1][5] = informateurSecretIntro;
 matriceOpe[2] = [];
-matriceOpe[2][0] = `renseignement danois`;
+matriceOpe[2][0] = `Renseignement Danois : `;
 matriceOpe[2][1] = 2;
+matriceOpe[2][5] = rensignementDanoisIntro;
 matriceOpe[3] = [];
-matriceOpe[3][0] = `transfert d'espion`;
+matriceOpe[3][0] = `Transfert d'Espion : `;
 matriceOpe[3][1] = 1;
+matriceOpe[3][5] = transfertIntro;
 matriceOpe[4] = [];
-matriceOpe[4][0] = `ancienne photographie`;
+matriceOpe[4][0] = `Ancienne Photographie : `;
 matriceOpe[4][1] = 2;
+matriceOpe[4][5] = anciennePhotoIntro;
 matriceOpe[5] = [];
-matriceOpe[5][0] = `confession`;
+matriceOpe[5][0] = `Confession : `;
 matriceOpe[5][1] = 1;
+matriceOpe[5][5] = confessionIntro;
 matriceOpe[6] = [];
-matriceOpe[6][0] = `mauvaise rencontre`;
+matriceOpe[6][0] = `Mauvaise rencontre : `;
 matriceOpe[6][1] = 1;
+matriceOpe[6][5] = mauvaiseRencontreIntro;
 matriceOpe[7] = [];
-matriceOpe[7][0] = `preuve compromettante`;
+matriceOpe[7][0] = `Preuve Compromettante : `;
 matriceOpe[7][1] = 0;
+matriceOpe[7][5] = preuveCompromettanteIntro;
 matriceOpe[8] = [];
-matriceOpe[8][0] = `deserteur`;
+matriceOpe[8][0] = `Deserteur : `;
 matriceOpe[8][1] = 0;
+matriceOpe[8][5] = deserteurIntro;
 matriceOpe[9] = [];
-matriceOpe[9][0] = `info annonyme`;
+matriceOpe[9][0] = `Info Anonyme : `;
 matriceOpe[9][1] = 1;
+matriceOpe[9][5] = infoAnonymeIntro;
 matriceOpe[10] = [];
-matriceOpe[10][0] = `info secrete`;
+matriceOpe[10][0] = `Dossier Secret : `; //InfoSecrete
 matriceOpe[10][1] = 2;
+matriceOpe[10][5] = dossierSecretIntro;
 matriceOpe[11] = [];
-matriceOpe[11][0] = `agent dormant`;
+matriceOpe[11][0] = `Dossier Secret : `; //Agent dormant
 matriceOpe[11][1] = 1;
+matriceOpe[11][5] = dossierSecretIntro;
 matriceOpe[12] = [];
-matriceOpe[12][0] = `adoration`;
+matriceOpe[12][0] = `Dossier Secret : `; //Adoration
 matriceOpe[12][1] = 1;
+matriceOpe[12][5] = dossierSecretIntro;
 matriceOpe[13] = [];
-matriceOpe[13][0] = `rancune`;
+matriceOpe[13][0] = `Dossier Secret : `; //Rancune
 matriceOpe[13][1] = 1;
+matriceOpe[13][5] = dossierSecretIntro;
 matriceOpe[14] = [];
-matriceOpe[14][0] = `bouc emissaire`;
+matriceOpe[14][0] = `Dossier Secret : `; //Bouc
 matriceOpe[14][1] = 0.5;
+matriceOpe[14][5] = dossierSecretIntro;
 
 //Toutes les actions à faire quand le bot se connecte
 bot.on("ready", function () {
@@ -92,6 +113,7 @@ bot.on('message', async message => {
       }else{                                        //S'il y a le bon nombre de joueurs, on lance la partie
 
         // INITIALISATION DES VARIABLES
+        let end, current;                       //Variables de gestion du temps
         let nombreJoueurs = membersId.length            //nombre de joueurs présents pour la partie
         let nombreVirus = Math.ceil(nombreJoueurs/3)    //calcul du nombre de virus a distribuer (le tiers)
         let nombreService = nombreVirus - nombreJoueurs //calcul du nombre de service restant
@@ -104,7 +126,7 @@ bot.on('message', async message => {
         let nombreVirusListe = 0;                       //compte du nombre de joueurs apparaissant dans la liste de virus
         let listeVirus = [];
         let messageAnomalieListeVirus = ``;       //Message d'exception pour virus
-        let end, current;                       //Variables de gestion du temps
+        let indiceOperation                       //Operation reçu par le joueur
 
         // AFFECTATION DE LA MATRICE
         let matriceRole = [];                 //déclaration de la matrice des roles
@@ -177,7 +199,7 @@ bot.on('message', async message => {
         waitSeconds(attenteSimple);
 
 
-      //PHASE DE DISTRIBUTION DES ROLES !
+//PHASE DE DISTRIBUTION DES ROLES !
         for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs
           //bot.users.cache.get(membersId[i]).send(`${matriceRole[i][1]}${matriceRole[i][2]}${matriceRole[i][3]}${matriceRole[i][4]}`); //envoi de son role de service au jouer
           // CONSTRUCTION DU MESSAGE DE ROLE
@@ -209,35 +231,37 @@ bot.on('message', async message => {
             totalOpe = totalOpe + matriceOpe[i][1];
             nombreOpe = nombreOpe + 1;
           }
-          console.log(matriceOpe[i][1])
         }
         for (let i = 0; i < matriceOpe.length; i++) {                //parcours toutes les options possibles
           matriceOpe[i][2] = (matriceOpe[i][1]*100/totalOpe);
           if(i>0){ matriceOpe[i][3] = Math.round(matriceOpe[i][2]*100+matriceOpe[i-1][3]); }else{ matriceOpe[i][3] = Math.round(matriceOpe[i][2]*100); }
-          console.log(matriceOpe[i][3])
+          //console.log(matriceOpe[i][3])
         }
 
         //Distribution des informations
         for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs
             ope = getRandomInt(10000);
-            j=0;
-            k=0;
-            console.log(matriceOpe[j+1][3])
+            console.log(ope);
+            let j=0;
+            indiceOperation=0;
             while(ope > matriceOpe[j+1][3]){
-              console.log(matriceOpe[j+1][3])
               j++;
-              if(matriceOpe[j+1][1] > 0 ) {k=j;}
+              if(matriceOpe[j+1][1] > 0 ) {indiceOperation=j;}
             }
-            //k est l'indice de l'option a garder
-            await bot.users.cache.get(membersId[i]).send(`Voici votre information : ${matriceOpe[k][0]}`);    //envoi du message de phase d'opération a chaque joueur
-          //WAIT 5s
-          waitSeconds(1000);
+            for (let j = 0; j < nombreJoueurs; j++) {                //parcours tous les joueurs
+              await bot.users.cache.get(membersId[j]).send(`${matriceOpe[indiceOperation][0]}${membersName[j]}${matriceOpe[indiceOperation][5]}`);    //envoi du type d'opération a chaque joueur
+            }// Fin de parcours de la liste des joueurs
+            await bot.users.cache.get(membersId[i]).send(`${partieSecreteDebut} ... ${partieSecreteFin}`);    //envoi de l'opération au joueur concerné
+          //WAIT 3s
+          waitSeconds(attenteSimple);
         }// Fin de parcours de la liste des joueurs
 
 
 //PHASE D'ACCUSATION !
         for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs
-          await bot.users.cache.get(membersId[i]).send(`Pour qui voulez vous voter ?`);    //envoi du message de phase d'opération a chaque joueur
+          await bot.users.cache.get(membersId[i]).send(`${phaseAccusation}`);    //envoi du message de phase d'opération a chaque joueur
+          //WAIT 3s
+          waitSeconds(attenteSimple);
         }// Fin de parcours de la liste des joueurs
 
 

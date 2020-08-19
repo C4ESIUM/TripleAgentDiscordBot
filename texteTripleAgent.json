@@ -4,7 +4,7 @@
   "intro3" : " présents sont des agents doubles travaillant pour le VIRUS ! Votre briefing vous dira pour quelle agence vous travaillez ainsi que votre objectif. Vous ne pourrez mettre qu'une seule personne derrière les barreaux, donc soyez sûr de faire le bon choix. Mémorisez les noms des autres, prenez note des symboles des deux agences et découvrez qui ment sur son identité.\n\n",
   "roleliste" : "Il y a ",
   "role0" : " agents du VIRUS. Pour gagner vous devez emprisonner l’une de leur recrues.\n",
-  "role1" : " agents du virus travaillant avec vous : \n",
+  "role1" : " agents du virus : \n",
   "role1110" : "Pour le moment, vous travaillez pour le VIRUS. Votre mission est de ne pas être découvert et de faire en sorte que le service emprisonne l’un des leurs. ",
   "role1111" : "Pour le moment, vous travaillez pour le VIRUS. Votre mission est de ne pas être découvert et de faire en sorte que le service emprisonne l’un des leurs.\nLoyal au VIRUS : Vous êtes loyal au VIRUS. Toute opération qui tente de vous faire changer de camp sera annulée. ",
   "role1100" : "Pour le moment, vous travaillez pour le VIRUS. Votre mission est de ne pas être découvert et de faire en sorte que le service emprisonne l’un des leurs.\nAgent Renégat : Vous êtes un renégat. Les autres agents ne savent pas que vous êtes des leurs. ",
@@ -15,5 +15,22 @@
   "role0100" : "Agent suspect : Votre passé vous lie à des affaires louches. Si quelqu’un essaie de vérifier pour qui vous travaillez, il vous verra comme un agent du VIRUS. ",
   "msgTropVirus" : " Hum… Il y a plus de noms dans cette liste qu’il ne devrait y en avoir.",
   "msgPasAssezVirus" : " Hum… Il n’y a pas suffisamment de noms dans cette liste.",
-  "phaseOperation" : "Debut de la phase d'opération : Chaque personne effectuera une opération, suivit de 2 minutes de débat, avant de passer à la phase d’accusation."
+  "partieSecreteDebut" : "PARTIE SECRETE : \n",
+  "partieSecreteFin" : "\nFIN DE LA PARTIE SECRETE",
+  "phaseOperation" : "Debut de la phase d'opération : Chaque personne effectuera une opération, suivit de 2 minutes de débat, avant de passer à la phase d’accusation.",
+  "infiltrationIntro" : " sélectionne un agent pour découvrir son agence. S’il se trouve que c’est un agent du VIRUS, il rejoindra sa cause.",
+  "informateurSecretIntro" : " doit sélectionner deux agents, l’informateur révélera si l’un d’eux est un agent du virus.",
+  "rensignementDanoisIntro" : " a intercepté une transmission avec deux noms : l’un est un agent du VIRUS, l’autre non.",
+  "transfertIntro" : " doit choisir un autre agent et échanger secrètement d’agence avec celui ci. Ils travaillent maintenant chacun pour l’agence pour laquelle l’autre travaillait.",
+  "anciennePhotoIntro" : " a trouvé des preuves montrant, qu’au début, deux agents travaillaient pour la même agence.",
+  "infoAnonymeIntro" : " consulte son informateur et découvre l’agence d’un des autres agents.",
+  "confessionIntro" : " doit montrer à un autre agent, l’agence pour laquelle il ou elle travaille.",
+  "mauvaiseRencontreIntro" : " séléctionne un agent. Ils pourront tous les deux voir si l’un d’eux ou les deux travaillent pour le VIRUS. ",
+  "preuveCompromettanteIntro" : " doit sélectionner un autre agent qui pourra lui ajouter un vote supplémentaire ou le ou la protéger contre un vote lors de la phase d'accusation",
+  "deserteurIntro" : " peut déserter son équipe et rejoindre l’adversaire. Un déserteur du VIRUS perds la partie s’il reçoit un vote d’un autre membre du VIRUS. Un déserteur du Service ne peux pas voter.",
+  "dossierSecretIntro" : " reçoit des ordres de ses supérieurs. Il ou elle pourrait changer de camp, recevoir une nouvelle condition de victoire ou obtenir une information à propos d’un autre agent.",
+
+
+  "phaseAccusation" : "Debut de la phase d'accusation : L’agent qui reçoit le plus de votes contre lui sera emprisonné. Si c’est un agent double du Virus, Le Service gagne, sinon les agents du VIRUS gagnent.",
+  "" : ""
 }
