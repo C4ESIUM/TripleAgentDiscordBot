@@ -15,8 +15,8 @@ const attenteLongue = 3000
 const minJoueur = 1
 const maxJoueur = 9
 
-totalOpe = 0;
-nombreOpe = 0;
+let totalOpe = 0;
+let nombreOpe = 0;
 
 let matriceOpe = [];                 //déclaration de la matrice des opérations
 matriceOpe[0] = [];
@@ -98,6 +98,20 @@ async function waitSeconds(milliseconds) {
     current = new Date();
   }
 }
+async function waitSecondsOrTrigger(milliseconds, condition) {
+  current = new Date();
+  end = current.getTime() + milliseconds;
+  while (current.getTime() < end) {
+    current = new Date();
+  }
+  if (message.content === condition) {
+		try {
+      message.channel.send(`message reçu`);
+    } catch (error) {
+      // handle error
+    }
+  }
+}
 
 bot.on('message', async message => {
 	if (message.content === `${prefix}jouer`) {
@@ -143,25 +157,25 @@ bot.on('message', async message => {
               matriceRole[i][3] = 1;                    //affectation du statut normal (dans la liste des virus) dans la quatrieme collone
               listeVirus.push(matriceRole[i][0]);     //Ajout d'un nom dans la liste des virus
               matriceRole[i][4] = 0;                    //affectation du statut normal dans la cinquieme collone
-              role = `${role1010}`;                     //texte correspondant a sa valeur matrice
+              matriceRole[i][5] = `${role1010}`;                     //texte correspondant a sa valeur matrice
               infiltrCount--;                           //réduction du nombre d'infiltrés a distribuer
             }else{                                    //Si virus, mais pas infiltré
               matriceRole[i][2] = 1;                    //affectation du statut normal dans la troisieme collone
               if(getRandomInt(10)<renegatCount){        //10% de chance d'etre renegat, limité a renegatCount
                 matriceRole[i][3] = 0;                  //affectation du statut renegat (hors de la liste des virus) dans la quatrieme collone
                 matriceRole[i][4] = 0;                   //affectation du statut normal dans la cinquieme collone
-                role = `${role1100}`;                    //texte correspondant a sa valeur matrice
+                matriceRole[i][5] = `${role1100}`;                    //texte correspondant a sa valeur matrice
                 renegatCount--;                         //réduction du nombre de renegat a distribuer
               }else{                                  //Si virus, mais pas infiltré, ni renegat
                 matriceRole[i][3] = 1;                  //affectation du statut normal (dans la liste des virus) dans la quatrieme collone
                 listeVirus.push(matriceRole[i][0]);     //Ajout d'un nom dans la liste des virus
                 if(getRandomInt(10)<loyalCount){        //10% de chance d'etre loyal, limité a loyalCount
                   matriceRole[i][4] = 1;                //affectation du statut loyal dans la cinquieme collone
-                  role = `${role1111}`;                 //texte correspondant a sa valeur matrice
+                  matriceRole[i][5] = `${role1111}`;                 //texte correspondant a sa valeur matrice
                   loyalCount--;                         //réduction du nombre de loyal a distribuer
                 }else{                                //Si virus, mais pas infiltré, ni renegat, ni loyal
                   matriceRole[i][4] = 0;                //affectation du statut normal dans la cinquieme collone
-                  role = `${role1110}`;                 //texte correspondant a sa valeur matrice
+                  matriceRole[i][5] = `${role1110}`;                 //texte correspondant a sa valeur matrice
                 }
               }
             }
@@ -171,7 +185,7 @@ bot.on('message', async message => {
               matriceRole[i][2] = 1;                    //affectation du statut suspect dans la troisieme collone
               matriceRole[i][3] = 0;                    //affectation du statut normal (hors de la liste des virus) dans la quatrieme collone
               matriceRole[i][4] = 0;                    //affectation du statut normal dans la cinquieme collone
-              role = `${role0100}`;                     //texte correspondant a sa valeur matrice
+              matriceRole[i][5] = `${role0100}`;                     //texte correspondant a sa valeur matrice
               suspCount--;                              //réduction du nombre de suspect a distribuer
             }else{                                    //Si service, mais pas suspect
               matriceRole[i][2] = 0;                    //affectation du statut normal dans la troisieme collone
@@ -179,17 +193,17 @@ bot.on('message', async message => {
                 matriceRole[i][3] = 1;                  //affectation du statut triple (dans la liste des virus) dans la quatrieme collone
                 listeVirus.push(matriceRole[i][0]);     //Ajout d'un nom dans la liste des virus
                 matriceRole[i][4] = 0;                  //affectation du statut normal dans la cinquieme collone
-                role = `${role0010}`;                   //texte correspondant a sa valeur matrice
+                matriceRole[i][5] = `${role0010}`;                   //texte correspondant a sa valeur matrice
                 tripleCount--;                          //réduction du nombre de triple a distribuer
               }else{                                  //Si service, mais pas suspect, ni triple
                 matriceRole[i][3] = 0;                  //affectation du statut normal (hors de la liste des virus) dans la quatrieme collone
                 if(getRandomInt(10)<loyalCount){        //10% de chance d'etre loyal, limité a loyalCount
                   matriceRole[i][4] = 1;                //affectation du statut loyal dans la cinquieme collone
-                  role = `${role0001}`;                 //texte correspondant a sa valeur matrice
+                  matriceRole[i][5] = `${role0001}`;                 //texte correspondant a sa valeur matrice
                   loyalCount--;                         //réduction du nombre de loyal a distribuer
                 }else{                                //Si virus, mais pas infiltré, ni renegat, ni loyal
                   matriceRole[i][4] = 0;                //affectation du statut normal dans la cinquieme collone
-                  role = `${role0000}`;                 //texte correspondant a sa valeur matrice
+                  matriceRole[i][5] = ``;                 //texte correspondant a sa valeur matrice
                 }
               }
             }
@@ -205,14 +219,14 @@ bot.on('message', async message => {
           //bot.users.cache.get(membersId[i]).send(`${matriceRole[i][1]}${matriceRole[i][2]}${matriceRole[i][3]}${matriceRole[i][4]}`); //envoi de son role de service au jouer
           // CONSTRUCTION DU MESSAGE DE ROLE
           if(matriceRole[i][1] == 0){ //si service :
-            await bot.users.cache.get(membersId[i]).send(`${role0000}${roleliste}${nombreVirus}${role0}` + role); //envoi de son role de service au jouer
+            await bot.users.cache.get(membersId[i]).send(`${role0000}${roleliste}${nombreVirus}${role0}` + matriceRole[i][5]); //envoi de son role de service au jouer
           }else{                      //si virus :
             if(listeVirus.length < nombreVirus){  //si le nombre de virus affiché ne corresponds pas au nombre de virus prevu
               messageAnomalieListeVirus = messageAnomalieListeVirus + msgPasAssezVirus;
             }else if(listeVirus.length < nombreVirus){  //si le nombre de virus affiché ne corresponds pas au nombre de virus prevu
               messageAnomalieListeVirus = messageAnomalieListeVirus + msgTropVirus;
             }
-            await bot.users.cache.get(membersId[i]).send(role + `${roleliste}${listeVirus.length}${role1}${listeVirus}${messageAnomalieListeVirus}`); //envoi de son role de virus au joueur
+            await bot.users.cache.get(membersId[i]).send(matriceRole[i][5] + `${roleliste}${listeVirus.length}${role1}${listeVirus}${messageAnomalieListeVirus}`); //envoi de son role de virus au joueur
           }
         //WAIT 3s
         waitSeconds(attenteSimple);
@@ -230,6 +244,8 @@ bot.on('message', async message => {
         waitSeconds(attenteSimple);
 
         //Initialiser les opération disponibles
+        totalOpe = 0;
+        nombreOpe = 0;
         for (let i = 0; i < matriceOpe.length; i++) {                //parcours toutes les options possibles pour calculer totalOpe et nombreOpe
           if(matriceOpe[i][1]>0){
             totalOpe = totalOpe + matriceOpe[i][1];
@@ -237,8 +253,12 @@ bot.on('message', async message => {
           }
         }
         for (let i = 0; i < matriceOpe.length; i++) {                //parcours toutes les options possibles
-          matriceOpe[i][2] = (matriceOpe[i][1]*100/totalOpe);
-          if(i>0){ matriceOpe[i][3] = Math.round(matriceOpe[i][2]*100+matriceOpe[i-1][3]); }else{ matriceOpe[i][3] = Math.round(matriceOpe[i][2]*100); }
+          matriceOpe[i][2] = ((matriceOpe[i][1]*100)/totalOpe);
+          if(i>0){ matriceOpe[i][3] = Math.round(matriceOpe[i][2]*100 + matriceOpe[i-1][3]); }else{ matriceOpe[i][3] = Math.round(matriceOpe[i][2]*100); }
+          console.log(`operation ` + matriceOpe[i][0]);
+          console.log(`taux ` + matriceOpe[i][1]);
+          console.log(`proba ` + matriceOpe[i][2]);
+          console.log(`proba cumulée ` + matriceOpe[i][3]);
           //console.log(matriceOpe[i][3])
         }
 
@@ -248,19 +268,28 @@ bot.on('message', async message => {
             let agent
             do {
               agent = getRandomInt(nombreJoueurs);
+              console.log(agent);
             }while (recapOpe[agent] != ``)
-            console.log(ope);
             let j=0;
             indiceOperation=0;
             while(ope > matriceOpe[j+1][3]){
               j++;
-              if(matriceOpe[j+1][1] > 0 ) {indiceOperation=j;}
+              if(matriceOpe[j+1][1] > 0 ) {indiceOperation=j;} //Si l'option est dispo, on prends son indice
             }
-            recapOpe[agent] = matriceOpe[indiceOperation][0];
-            for (let j = 0; j < nombreJoueurs; j++) {                //parcours tous les joueurs
-              await bot.users.cache.get(membersId[j]).send(`${matriceOpe[indiceOperation][0]}${membersName[i]}${matriceOpe[indiceOperation][5]}`);    //envoi du type d'opération a chaque joueur
+            recapOpe[agent] = matriceOpe[indiceOperation][0]; //affectation de la matrice
+
+/*            console.log(`parcours tableau opération`);
+            for (let k = 0; k < nombreJoueurs; k++) {                //parcours tous les joueurs
+              console.log(k);
+              console.log(recapOpe[k]);
+            }
+            console.log(`fin parcours tableau opération`);*/
+
+            for (let j = 0; j < nombreJoueurs; j++) {                //parcours tous les joueurs pour partager l'option reçue
+              await bot.users.cache.get(membersId[j]).send(`${matriceOpe[indiceOperation][0]}${membersName[agent]}${matriceOpe[indiceOperation][5]}`);    //envoi du type d'opération a chaque joueur
             }// Fin de parcours de la liste des joueurs
-            await bot.users.cache.get(membersId[i]).send(`${partieSecreteDebut} ... ${partieSecreteFin}`);    //envoi de l'opération au joueur concerné
+            await bot.users.cache.get(membersId[agent]).send(`${partieSecreteDebut} ... ${partieSecreteFin}`);    //envoi de l'opération au joueur concerné
+
           //WAIT 3s
           recap = recap + recapOpe[agent] + membersName[agent] + `\n`;
           waitSeconds(attenteSimple);
@@ -269,8 +298,11 @@ bot.on('message', async message => {
 //PHASE DE DISCUTION !
         for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs
           await bot.users.cache.get(membersId[i]).send(`${phaseDeDiscution}${recap}`);    //envoi du message de phase d'opération a chaque joueur
+          recapOpe[i] = ``;
         }// Fin de parcours de la liste des joueurs
         waitSeconds(attenteLongue);
+
+        //waitSecondsOrTrigger(attenteSimple, `${prefix}jouer`);
 
 //PHASE D'ACCUSATION !
         for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs
