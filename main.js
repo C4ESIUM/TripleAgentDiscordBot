@@ -14,6 +14,7 @@ const attenteLongue = 3000
 
 const minJoueur = 1
 const maxJoueur = 9
+let partieEnCours = 0;
 
 let totalOpe = 0;
 let nombreOpe = 0;
@@ -113,6 +114,12 @@ async function waitSecondsOrTrigger(milliseconds, condition) {
   }
 }
 
+async function broadcastAllPlayers(membersId,message) {
+  for (let i = 0; i < membersId.length; i++) {                //parcours tous les joueurs
+    await bot.users.cache.get(membersId[i]).send(message);    //envoi du message de phase d'opération a chaque joueur
+  }// Fin de parcours de la liste des joueurs
+}
+
 bot.on('message', async message => {
 	if (message.content === `${prefix}jouer`) {
 		try {
@@ -125,7 +132,10 @@ bot.on('message', async message => {
         message.channel.send(`Pas assez de joueurs`);
       }else if(membersId.length>maxJoueur){
         message.channel.send(`Trop de joueurs`);
-      }else{                                        //S'il y a le bon nombre de joueurs, on lance la partie
+      }else if(partieEnCours == 1){
+        message.channel.send(`Partie déjà en cours`);
+      }else{                                        //S'il y a le bon nombre de joueurs et qu'aucune autre parti n'est en cours, on lance la partie
+        partieEnCours = 1;
 
         // INITIALISATION DES VARIABLES
         let end, current;                       //Variables de gestion du temps
@@ -238,11 +248,8 @@ bot.on('message', async message => {
         let recap = ``;                                 //déclaration du texte de récap
         for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs
           await bot.users.cache.get(membersId[i]).send(`${phaseOperation}`);    //envoi du message de phase d'opération a chaque joueur
-          recapOpe[i] = ``;
+          recapOpe[i] = ``;                                     //initialisation du tableau d'opération
         }// Fin de parcours de la liste des joueurs
-                  //WAIT 3s
-        waitSeconds(attenteSimple);
-
         //Initialiser les opération disponibles
         totalOpe = 0;
         nombreOpe = 0;
@@ -255,20 +262,19 @@ bot.on('message', async message => {
         for (let i = 0; i < matriceOpe.length; i++) {                //parcours toutes les options possibles
           matriceOpe[i][2] = ((matriceOpe[i][1]*100)/totalOpe);
           if(i>0){ matriceOpe[i][3] = Math.round(matriceOpe[i][2]*100 + matriceOpe[i-1][3]); }else{ matriceOpe[i][3] = Math.round(matriceOpe[i][2]*100); }
-          console.log(`operation ` + matriceOpe[i][0]);
-          console.log(`taux ` + matriceOpe[i][1]);
-          console.log(`proba ` + matriceOpe[i][2]);
-          console.log(`proba cumulée ` + matriceOpe[i][3]);
-          //console.log(matriceOpe[i][3])
+          //console.log(`operation ` + matriceOpe[i][0]);
+          //console.log(`taux ` + matriceOpe[i][1]);
+          //console.log(`proba ` + matriceOpe[i][2]);
+          //console.log(`proba cumulée ` + matriceOpe[i][3]);
         }
-
+        //WAIT 3s
+        waitSeconds(attenteSimple);
         //Distribution des informations
         for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs
             let ope = getRandomInt(10000);
             let agent
             do {
               agent = getRandomInt(nombreJoueurs);
-              console.log(agent);
             }while (recapOpe[agent] != ``)
             let j=0;
             indiceOperation=0;
@@ -278,38 +284,40 @@ bot.on('message', async message => {
             }
             recapOpe[agent] = matriceOpe[indiceOperation][0]; //affectation de la matrice
 
-/*            console.log(`parcours tableau opération`);
-            for (let k = 0; k < nombreJoueurs; k++) {                //parcours tous les joueurs
-              console.log(k);
-              console.log(recapOpe[k]);
-            }
-            console.log(`fin parcours tableau opération`);*/
-
-            for (let j = 0; j < nombreJoueurs; j++) {                //parcours tous les joueurs pour partager l'option reçue
-              await bot.users.cache.get(membersId[j]).send(`${matriceOpe[indiceOperation][0]}${membersName[agent]}${matriceOpe[indiceOperation][5]}`);    //envoi du type d'opération a chaque joueur
-            }// Fin de parcours de la liste des joueurs
+            broadcastAllPlayers(membersId,`${matriceOpe[indiceOperation][0]}${membersName[agent]}${matriceOpe[indiceOperation][5]}`);
             await bot.users.cache.get(membersId[agent]).send(`${partieSecreteDebut} ... ${partieSecreteFin}`);    //envoi de l'opération au joueur concerné
-
+            recap = recap + recapOpe[agent] + membersName[agent] + `\n`;
           //WAIT 3s
-          recap = recap + recapOpe[agent] + membersName[agent] + `\n`;
           waitSeconds(attenteSimple);
         }// Fin de parcours de la liste des joueurs
 
 //PHASE DE DISCUTION !
-        for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs
-          await bot.users.cache.get(membersId[i]).send(`${phaseDeDiscution}${recap}`);    //envoi du message de phase d'opération a chaque joueur
-          recapOpe[i] = ``;
-        }// Fin de parcours de la liste des joueurs
+        broadcastAllPlayers(membersId,`${phaseDeDiscution}${recap}`);
         waitSeconds(attenteLongue);
 
         //waitSecondsOrTrigger(attenteSimple, `${prefix}jouer`);
 
 //PHASE D'ACCUSATION !
+
+        broadcastAllPlayers(membersId,`${phaseAccusation}`);
+        waitSeconds(attenteSimple);
+
         for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs
-          await bot.users.cache.get(membersId[i]).send(`${phaseAccusation}`);    //envoi du message de phase d'opération a chaque joueur
+          let agent
+          do {
+            agent = getRandomInt(nombreJoueurs);
+          }while (recapOpe[agent] == ``)
+          await bot.users.cache.get(membersId[agent]).send(`A toi de voter : `);    //envoi du message de phase d'opération a chaque joueur
+          recapOpe[agent] = ``;
           //WAIT 3s
           waitSeconds(attenteSimple);
-        }// Fin de parcours de la liste des joueurs
+        }
+
+//PHASE DE RESULTATS !
+
+        broadcastAllPlayers(membersId,`Resultats : `);
+        broadcastAllPlayers(membersId,`FIN DE LA PARTIE`);
+        partieEnCours = 0;
 
 
       }//Fin de verification du nombre de personne
