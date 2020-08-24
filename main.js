@@ -169,9 +169,10 @@ bot.on('message', async message => {
         await message.channel.send(`DEBUT de la partie`);
         // INITIALISATION DES VARIABLES
         let end, current;                       //Variables de gestion du temps
-        let nombreJoueurs = membersId.length            //nombre de joueurs présents pour la partie
-        let nombreVirus = Math.ceil(nombreJoueurs/3)    //calcul du nombre de virus a distribuer (le tiers)
-        let nombreService = nombreVirus - nombreJoueurs //calcul du nombre de service restant
+        let nombreJoueurs = membersId.length;            //nombre de joueurs présents pour la partie
+        let nombreVirus = Math.ceil(nombreJoueurs/3);    //calcul du nombre de virus a distribuer (le tiers)
+        let nombreVirusSurListe = 0;
+        let nombreService = nombreVirus - nombreJoueurs; //calcul du nombre de service restant
         let virusCount = nombreVirus;             //nombre de virus qui décrois quand on les affect
         let infiltrCount = 1;                     //nombre maxi d'agent infiltré qui décrois quand on les affect
         let suspCount = nombreVirus;              //nombre maxi d'agent suspect qui décrois quand on les affect
@@ -179,9 +180,9 @@ bot.on('message', async message => {
         let tripleCount = nombreVirus-1;          //nombre maxi d'agent triple qui décrois quand on les affect
         let loyalCount = nombreVirus;             //nombre maxi d'agent loyaux qui décrois quand on les affect
         let nombreVirusListe = 0;                       //compte du nombre de joueurs apparaissant dans la liste de virus
-        let listeVirus = [];
+        let listeVirus = [];                      //joueurs apparaissant sur la liste des virus
         let messageAnomalieListeVirus = ``;       //Message d'exception pour virus
-        let indiceOperation                       //Operation reçu par le joueur
+        let indiceOperation;                       //Operation reçu par le joueur
 
         console.log(`Message : Briefing`);
         await message.channel.send(`${intro1}${nombreVirus}${intro2}${nombreJoueurs}${intro3}`);
@@ -197,7 +198,7 @@ bot.on('message', async message => {
             if(getRandomInt(10)<infiltrCount){          //10% de chance d'etre infiltré, limité a infiltrCount
               matriceRole[i][2] = 0;                    //affectation du statut infiltré dans la troisieme collone
               matriceRole[i][3] = 1;                    //affectation du statut normal (dans la liste des virus) dans la quatrieme collone
-              listeVirus.push(matriceRole[i][0]);     //Ajout d'un nom dans la liste des virus
+              nombreVirusSurListe ++;
               matriceRole[i][4] = 0;                    //affectation du statut normal dans la cinquieme collone
               matriceRole[i][5] = `${role1010}`;                     //texte correspondant a sa valeur matrice
               infiltrCount--;                           //réduction du nombre d'infiltrés a distribuer
@@ -210,7 +211,7 @@ bot.on('message', async message => {
                 renegatCount--;                         //réduction du nombre de renegat a distribuer
               }else{                                  //Si virus, mais pas infiltré, ni renegat
                 matriceRole[i][3] = 1;                  //affectation du statut normal (dans la liste des virus) dans la quatrieme collone
-                listeVirus.push(matriceRole[i][0]);     //Ajout d'un nom dans la liste des virus
+                nombreVirusSurListe ++;
                 if(getRandomInt(10)<loyalCount){        //10% de chance d'etre loyal, limité a loyalCount
                   matriceRole[i][4] = 1;                //affectation du statut loyal dans la cinquieme collone
                   matriceRole[i][5] = `${role1111}`;                 //texte correspondant a sa valeur matrice
@@ -233,7 +234,7 @@ bot.on('message', async message => {
               matriceRole[i][2] = 0;                    //affectation du statut normal dans la troisieme collone
               if(getRandomInt(10)<tripleCount){         //10% de chance d'etre triple, limité a tripleCount
                 matriceRole[i][3] = 1;                  //affectation du statut triple (dans la liste des virus) dans la quatrieme collone
-                listeVirus.push(matriceRole[i][0]);     //Ajout d'un nom dans la liste des virus
+                nombreVirusSurListe ++;
                 matriceRole[i][4] = 0;                  //affectation du statut normal dans la cinquieme collone
                 matriceRole[i][5] = `${role0010}`;                   //texte correspondant a sa valeur matrice
                 tripleCount--;                          //réduction du nombre de triple a distribuer
@@ -263,12 +264,20 @@ bot.on('message', async message => {
           if(matriceRole[i][1] == 0){ //si service :
             await bot.users.cache.get(membersId[i]).send(`${role0000}${roleliste}${nombreVirus}${role0}` + matriceRole[i][5]); //envoi de son role de service au jouer
           }else{                      //si virus :
-            if(listeVirus.length < nombreVirus){  //si le nombre de virus affiché ne corresponds pas au nombre de virus prevu
+            console.log(`c'est un virus`);
+            listeVirus = ``;
+            console.log(`virusSurListe réinitialisée`);
+            for (let j = 0; j < nombreJoueurs; j++) {
+              if(matriceRole[j][3] == 1 && j != i){listeVirus = listeVirus + ` ` + matriceRole[j][0]} //Ajout d'un nom dans la liste des virus
+            }
+            console.log(`virusSurListe mise a jour`);
+            if(nombreVirusSurListe-matriceRole[i][3] < nombreVirus-1){  //si le nombre de virus affiché ne corresponds pas au nombre de virus prevu
               messageAnomalieListeVirus = messageAnomalieListeVirus + msgPasAssezVirus;
-            }else if(listeVirus.length < nombreVirus){  //si le nombre de virus affiché ne corresponds pas au nombre de virus prevu
+            }else if(nombreVirusSurListe-matriceRole[i][3] < nombreVirus-1){  //si le nombre de virus affiché ne corresponds pas au nombre de virus prevu
               messageAnomalieListeVirus = messageAnomalieListeVirus + msgTropVirus;
             }
-            await bot.users.cache.get(membersId[i]).send(matriceRole[i][5] + `${roleliste}${listeVirus.length}${role1}${listeVirus}${messageAnomalieListeVirus}`); //envoi de son role de virus au joueur
+            console.log(`message modifié en cas de renegat/Triple agent`);
+            await bot.users.cache.get(membersId[i]).send(matriceRole[i][5] + `${roleliste}${nombreVirus -1}${role1}${listeVirus}${messageAnomalieListeVirus}`); //envoi de son role de virus au joueur
           }
         waitSeconds(attenteSimple);
         }// Fin de parcours de la liste des joueurs
@@ -342,6 +351,21 @@ bot.on('message', async message => {
 	}
 });
 
+
+bot.on('message', async message => {
+	if (message.content === `${prefix}test`) {
+		try {
+      if(partieEnCours > 0){
+        console.log(`test reussi`);
+        await bot.users.cache.get(message.author.id).send(`Pas encore ton tour de choisir`);
+      }else{
+        console.log(`Aucune partie en cours`);
+      }
+    } catch (error) {
+      // handle error
+    }
+  }
+});
 
   /*
 console.log(nomsJoueurs.length)
