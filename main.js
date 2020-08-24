@@ -4,13 +4,14 @@ const { prefix, token } = require('./config.json')
 const { intro1, intro2, intro3 ,
   roleliste, role0, role1, role1110, role1111, role1100, role1010, role0000, role0001, role0010, role0100,
   msgTropVirus, msgPasAssezVirus, partieSecreteDebut, partieSecreteFin,
-  phaseOperation, infiltrationIntro, informateurSecretIntro, rensignementDanoisIntro, transfertIntro, anciennePhotoIntro, infoAnonymeIntro, confessionIntro, mauvaiseRencontreIntro, preuveCompromettanteIntro, deserteurIntro, dossierSecretIntro,
+  phaseOperation, infiltrationCommun, informateurSecretCommun, rensignementDanoisCommun, transfertCommun, anciennePhotoCommun, infoAnonymeCommun, confessionCommun, mauvaiseRencontreCommun, preuveCompromettanteCommun, deserteurCommun, dossierSecretCommun,
+  infiltrationIntro, informateurSecretIntro, rensignementDanoisIntro, transfertIntro, anciennePhotoIntro, infoAnonymeIntro, confessionIntro, mauvaiseRencontreIntro, preuveCompromettanteIntro, deserteurIntro, dossierSecretIntro,
 
   phaseDeDiscution, phaseAccusation,
 } = require('./texteTripleAgent.json')
 
-const attenteSimple = 1000
-const attenteLongue = 3000
+const attenteSimple = 2000
+const attenteLongue = 10000
 
 const minJoueur = 1
 const maxJoueur = 9
@@ -20,66 +21,83 @@ let totalOpe = 0;
 let nombreOpe = 0;
 
 let matriceOpe = [];                 //déclaration de la matrice des opérations
+//[0] : Nom de l'opération / [1] : Taux ajustable de possibilité d'avoir l'opération / [2] : Probabilité d'obtenir l'opération / [3] : Probabilité cumulée
+//[4] : texte d'intro commun / [5] texte d'intro perso / []
 matriceOpe[0] = [];
 matriceOpe[0][0] = `Infiltration : `;
 matriceOpe[0][1] = 1;
+matriceOpe[0][4] = infiltrationCommun;
 matriceOpe[0][5] = infiltrationIntro;
 matriceOpe[1] = [];
 matriceOpe[1][0] = `Informateur Secret : `;
 matriceOpe[1][1] = 2;
+matriceOpe[1][4] = informateurSecretCommun;
 matriceOpe[1][5] = informateurSecretIntro;
 matriceOpe[2] = [];
 matriceOpe[2][0] = `Renseignement Danois : `;
 matriceOpe[2][1] = 2;
+matriceOpe[2][4] = rensignementDanoisCommun;
 matriceOpe[2][5] = rensignementDanoisIntro;
 matriceOpe[3] = [];
 matriceOpe[3][0] = `Transfert d'Espion : `;
 matriceOpe[3][1] = 1;
+matriceOpe[3][4] = transfertCommun;
 matriceOpe[3][5] = transfertIntro;
 matriceOpe[4] = [];
 matriceOpe[4][0] = `Ancienne Photographie : `;
 matriceOpe[4][1] = 2;
+matriceOpe[4][4] = anciennePhotoCommun;
 matriceOpe[4][5] = anciennePhotoIntro;
 matriceOpe[5] = [];
 matriceOpe[5][0] = `Confession : `;
 matriceOpe[5][1] = 1;
+matriceOpe[5][4] = confessionCommun;
 matriceOpe[5][5] = confessionIntro;
 matriceOpe[6] = [];
 matriceOpe[6][0] = `Mauvaise rencontre : `;
 matriceOpe[6][1] = 1;
+matriceOpe[6][4] = mauvaiseRencontreCommun;
 matriceOpe[6][5] = mauvaiseRencontreIntro;
 matriceOpe[7] = [];
 matriceOpe[7][0] = `Preuve Compromettante : `;
 matriceOpe[7][1] = 0;
+matriceOpe[7][4] = preuveCompromettanteCommun;
 matriceOpe[7][5] = preuveCompromettanteIntro;
 matriceOpe[8] = [];
 matriceOpe[8][0] = `Deserteur : `;
 matriceOpe[8][1] = 0;
+matriceOpe[8][4] = deserteurCommun;
 matriceOpe[8][5] = deserteurIntro;
 matriceOpe[9] = [];
 matriceOpe[9][0] = `Info Anonyme : `;
 matriceOpe[9][1] = 1;
+matriceOpe[9][4] = infoAnonymeCommun;
 matriceOpe[9][5] = infoAnonymeIntro;
 matriceOpe[10] = [];
 matriceOpe[10][0] = `Dossier Secret : `; //InfoSecrete
 matriceOpe[10][1] = 2;
+matriceOpe[10][4] = dossierSecretCommun;
 matriceOpe[10][5] = dossierSecretIntro;
 matriceOpe[11] = [];
 matriceOpe[11][0] = `Dossier Secret : `; //Agent dormant
 matriceOpe[11][1] = 1;
+matriceOpe[11][4] = dossierSecretCommun;
 matriceOpe[11][5] = dossierSecretIntro;
 matriceOpe[12] = [];
 matriceOpe[12][0] = `Dossier Secret : `; //Adoration
 matriceOpe[12][1] = 1;
+matriceOpe[12][4] = dossierSecretCommun;
 matriceOpe[12][5] = dossierSecretIntro;
 matriceOpe[13] = [];
 matriceOpe[13][0] = `Dossier Secret : `; //Rancune
 matriceOpe[13][1] = 1;
-matriceOpe[13][5] = dossierSecretIntro;
+matriceOpe[13][4] = dossierSecretCommun;
+matriceOpe[12][5] = dossierSecretIntro;
 matriceOpe[14] = [];
 matriceOpe[14][0] = `Dossier Secret : `; //Bouc
 matriceOpe[14][1] = 0.5;
-matriceOpe[14][5] = dossierSecretIntro;
+matriceOpe[14][4] = dossierSecretCommun;
+matriceOpe[12][5] = dossierSecretIntro;
 
 //Toutes les actions à faire quand le bot se connecte
 bot.on("ready", function () {
@@ -99,26 +117,38 @@ async function waitSeconds(milliseconds) {
     current = new Date();
   }
 }
-async function waitSecondsOrTrigger(milliseconds, condition) {
-  current = new Date();
-  end = current.getTime() + milliseconds;
-  while (current.getTime() < end) {
-    current = new Date();
-  }
-  if (message.content === condition) {
-		try {
-      message.channel.send(`message reçu`);
-    } catch (error) {
-      // handle error
+
+async function calculTabOperations(matriceOpe) {
+  let totalOpe = 0;
+  let nombreOpe = 0;
+  for (let i = 0; i < matriceOpe.length; i++) {                //parcours toutes les options possibles pour calculer totalOpe et nombreOpe
+    if(matriceOpe[i][1]>0){
+      totalOpe = totalOpe + matriceOpe[i][1];
+      nombreOpe = nombreOpe + 1;
     }
+  }
+  for (let i = 0; i < matriceOpe.length; i++) {                //parcours toutes les options possibles
+    matriceOpe[i][2] = ((matriceOpe[i][1]*100)/totalOpe);
+    if(i>0){ matriceOpe[i][3] = Math.round(matriceOpe[i][2]*100 + matriceOpe[i-1][3]); }else{ matriceOpe[i][3] = Math.round(matriceOpe[i][2]*100); }
   }
 }
 
-async function broadcastAllPlayers(membersId,message) {
-  for (let i = 0; i < membersId.length; i++) {                //parcours tous les joueurs
-    await bot.users.cache.get(membersId[i]).send(message);    //envoi du message de phase d'opération a chaque joueur
-  }// Fin de parcours de la liste des joueurs
+async function mafonction() {
+  console.log(`Ma fonction`);
 }
+
+/*
+function pollDOM () {
+  const el = document.querySelector('my-element');
+
+  if (nombre de secondes < temps limite) {
+    if (temps limite = 15s){afficher 15s restante}
+    setTimeout(pollDOM, 300); // try again in 300 milliseconds
+  } else {
+    met les votes en aléatoire
+  }
+}
+*/
 
 bot.on('message', async message => {
 	if (message.content === `${prefix}jouer`) {
@@ -129,14 +159,14 @@ bot.on('message', async message => {
       let membersId = channel.members.map(m=>m.id);               //récuperer les ID de tous les memebres présents dessus
       let membersName = channel.members.map(m=>m.nickname);       //récuperer les noms de tous les memebres présents dessus
       if(membersId.length<minJoueur){                             //récuperer le nombre de joueur dans le channel vocal
-        message.channel.send(`Pas assez de joueurs`);
+        await message.channel.send(`Pas assez de joueurs`);
       }else if(membersId.length>maxJoueur){
-        message.channel.send(`Trop de joueurs`);
+        await message.channel.send(`Trop de joueurs`);
       }else if(partieEnCours == 1){
-        message.channel.send(`Partie déjà en cours`);
-      }else{                                        //S'il y a le bon nombre de joueurs et qu'aucune autre parti n'est en cours, on lance la partie
+        await message.channel.send(`Partie déjà en cours`);
+      }else{                                        //S'il y a le bon nombre de joueurs, on lance la partie
         partieEnCours = 1;
-
+        await message.channel.send(`DEBUT de la partie`);
         // INITIALISATION DES VARIABLES
         let end, current;                       //Variables de gestion du temps
         let nombreJoueurs = membersId.length            //nombre de joueurs présents pour la partie
@@ -153,10 +183,12 @@ bot.on('message', async message => {
         let messageAnomalieListeVirus = ``;       //Message d'exception pour virus
         let indiceOperation                       //Operation reçu par le joueur
 
+        console.log(`Message : Briefing`);
+        await message.channel.send(`${intro1}${nombreVirus}${intro2}${nombreJoueurs}${intro3}`);
+
         // AFFECTATION DE LA MATRICE
         let matriceRole = [];                 //déclaration de la matrice des roles
         for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs
-          await bot.users.cache.get(membersId[i]).send(`${intro1}${nombreVirus}${intro2}${nombreJoueurs}${intro3}`);    //envoi du message d'intro a chaque joueur
           matriceRole[i] = [];                          //declaration de la 2eme dimention
           matriceRole[i][0] = membersName[i];           //affectation du surnom dans la premiere collone
           if(getRandomInt(nombreJoueurs-i)<virusCount){ //si le chiffre random désigne un virus
@@ -218,13 +250,13 @@ bot.on('message', async message => {
               }
             }
           }
-                      //console.log(getRandomInt(10))
         }// Fin de parcours de la liste des joueurs
-        //WAIT 3s
         waitSeconds(attenteSimple);
 
 
+
 //PHASE DE DISTRIBUTION DES ROLES !
+        console.log(`Message perso : Distribution des roles`);
         for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs
           //bot.users.cache.get(membersId[i]).send(`${matriceRole[i][1]}${matriceRole[i][2]}${matriceRole[i][3]}${matriceRole[i][4]}`); //envoi de son role de service au jouer
           // CONSTRUCTION DU MESSAGE DE ROLE
@@ -238,88 +270,71 @@ bot.on('message', async message => {
             }
             await bot.users.cache.get(membersId[i]).send(matriceRole[i][5] + `${roleliste}${listeVirus.length}${role1}${listeVirus}${messageAnomalieListeVirus}`); //envoi de son role de virus au joueur
           }
-        //WAIT 3s
         waitSeconds(attenteSimple);
         }// Fin de parcours de la liste des joueurs
 
 
 //PHASE D'OPERATION !
+        console.log(`Message : Phase d'operation`);
+        await message.channel.send(`${phaseOperation}`);
         let recapOpe = [];                              //déclaration du tableau de récap
         let recap = ``;                                 //déclaration du texte de récap
         for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs
-          await bot.users.cache.get(membersId[i]).send(`${phaseOperation}`);    //envoi du message de phase d'opération a chaque joueur
-          recapOpe[i] = ``;                                     //initialisation du tableau d'opération
+          //await bot.users.cache.get(membersId[i]).send(`${phaseOperation}`);    //envoi du message de phase d'opération a chaque joueur
+          recapOpe[i] = ``;
         }// Fin de parcours de la liste des joueurs
-        //Initialiser les opération disponibles
-        totalOpe = 0;
-        nombreOpe = 0;
-        for (let i = 0; i < matriceOpe.length; i++) {                //parcours toutes les options possibles pour calculer totalOpe et nombreOpe
-          if(matriceOpe[i][1]>0){
-            totalOpe = totalOpe + matriceOpe[i][1];
-            nombreOpe = nombreOpe + 1;
-          }
-        }
-        for (let i = 0; i < matriceOpe.length; i++) {                //parcours toutes les options possibles
-          matriceOpe[i][2] = ((matriceOpe[i][1]*100)/totalOpe);
-          if(i>0){ matriceOpe[i][3] = Math.round(matriceOpe[i][2]*100 + matriceOpe[i-1][3]); }else{ matriceOpe[i][3] = Math.round(matriceOpe[i][2]*100); }
-          //console.log(`operation ` + matriceOpe[i][0]);
-          //console.log(`taux ` + matriceOpe[i][1]);
-          //console.log(`proba ` + matriceOpe[i][2]);
-          //console.log(`proba cumulée ` + matriceOpe[i][3]);
-        }
-        //WAIT 3s
         waitSeconds(attenteSimple);
+
+        calculTabOperations(matriceOpe)
+
         //Distribution des informations
         for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs
-            let ope = getRandomInt(10000);
-            let agent
-            do {
-              agent = getRandomInt(nombreJoueurs);
-            }while (recapOpe[agent] != ``)
-            let j=0;
-            indiceOperation=0;
-            while(ope > matriceOpe[j+1][3]){
-              j++;
-              if(matriceOpe[j+1][1] > 0 ) {indiceOperation=j;} //Si l'option est dispo, on prends son indice
-            }
-            recapOpe[agent] = matriceOpe[indiceOperation][0]; //affectation de la matrice
-
-            broadcastAllPlayers(membersId,`${matriceOpe[indiceOperation][0]}${membersName[agent]}${matriceOpe[indiceOperation][5]}`);
-            await bot.users.cache.get(membersId[agent]).send(`${partieSecreteDebut} ... ${partieSecreteFin}`);    //envoi de l'opération au joueur concerné
-            recap = recap + recapOpe[agent] + membersName[agent] + `\n`;
-          //WAIT 3s
+          let ope = getRandomInt(10000);
+          let agent
+          do {
+            agent = getRandomInt(nombreJoueurs);
+          }while (recapOpe[agent] != ``)
+          let j=0;
+          indiceOperation=0;
+          while(ope > matriceOpe[j+1][3]){
+            j++;
+            if(matriceOpe[j+1][1] > 0 ) {indiceOperation=j;} //Si l'option est dispo, on prends son indice
+          }
+          recapOpe[agent] = matriceOpe[indiceOperation][0]; //affectation de la matrice
+          console.log(`Message : Opération d'un joueur`);
+          await message.channel.send(`${matriceOpe[indiceOperation][0]}${membersName[agent]}${matriceOpe[indiceOperation][4]}`);
+          console.log(`Message perso : Opération du joueur`);
+          await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}${matriceOpe[indiceOperation][5]}`);    //envoi de l'opération au joueur concerné
+          recap = recap + recapOpe[agent] + membersName[agent] + `\n`;
           waitSeconds(attenteSimple);
         }// Fin de parcours de la liste des joueurs
 
 //PHASE DE DISCUTION !
-        broadcastAllPlayers(membersId,`${phaseDeDiscution}${recap}`);
+        console.log(`Message : Phase de discution`);
+        await message.channel.send(`${phaseDeDiscution}${recap}`);
+        for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs
+          //recapOpe[i] = ``; //Besoin pour quoi deja ???
+        }// Fin de parcours de la liste des joueurs
         waitSeconds(attenteLongue);
 
-        //waitSecondsOrTrigger(attenteSimple, `${prefix}jouer`);
-
 //PHASE D'ACCUSATION !
-
-        broadcastAllPlayers(membersId,`${phaseAccusation}`);
-        waitSeconds(attenteSimple);
-
+        console.log(`Message : Phase d'accusation`);
+        await message.channel.send(`${phaseAccusation}`);
         for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs
-          let agent
-          do {
-            agent = getRandomInt(nombreJoueurs);
-          }while (recapOpe[agent] == ``)
-          await bot.users.cache.get(membersId[agent]).send(`A toi de voter : `);    //envoi du message de phase d'opération a chaque joueur
-          recapOpe[agent] = ``;
-          //WAIT 3s
+          await bot.users.cache.get(membersId[i]).send(`A toi de voter`);    //envoi du message de phase d'opération a chaque joueur
+          setTimeout(mafonction, 10000);
+              //Donner la liste des joueurs et recevoir le vote
           waitSeconds(attenteSimple);
-        }
-
-//PHASE DE RESULTATS !
-
-        broadcastAllPlayers(membersId,`Resultats : `);
-        broadcastAllPlayers(membersId,`FIN DE LA PARTIE`);
+        }// Fin de parcours de la liste des joueurs
+        console.log(`Message : Resultat`);
+        await message.channel.send(`Les votes sont : `);
+            //Afficher les votes en face de chaque joueur >0
+        waitSeconds(attenteSimple);
+        await message.channel.send(`Les gagnants sont : `);
+            //Determiner les gagnants en fonction des conditions de victoire
+        waitSeconds(attenteSimple);
+        await message.channel.send(`FIN de la partie`);
         partieEnCours = 0;
-
-
       }//Fin de verification du nombre de personne
 		} catch (error) {
 			// handle error
