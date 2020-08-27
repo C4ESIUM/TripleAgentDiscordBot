@@ -11,8 +11,8 @@ const { intro1, intro2, intro3 ,
 } = require('./texteTripleAgent.json')
 
 const attenteSimple = 2000
-const attenteSelection = 60000
-const attenteLongue = 10000
+const attenteSelection = 10000
+const attenteLongue = 20000
 
 const minJoueur = 1
 const maxJoueur = 9
@@ -44,6 +44,7 @@ let recap = ``;                                 //déclaration du texte de réca
 let listeJoueurs = [];
 let ordreJoueurs = [];
 let recapVote = [];                              //déclaration du tableau de récap
+let voteReçu = [];
 
 let matriceRole = [];                 //déclaration de la matrice des opérations
 
@@ -320,131 +321,115 @@ async function phaseDOperation(membersName, membersId, message, i){
     recap = recap + recapOpe[agent] + membersName[agent] + `\n`;
     console.log(`Message : Opération d'un joueur`);
     await message.channel.send(`${matriceOpe[indiceOperation][0]}${membersName[agent]}${matriceOpe[indiceOperation][4]}`);
-
+    setEmpty(listeJoueurs, nombreJoueurs);
+    setRandomliste(listeJoueurs, nombreJoueurs, agent);
     switch(indiceOperation) {
       case 0:
-        console.log(`Message : Infiltration`);
-        setEmpty(listeJoueurs, nombreJoueurs);
-        setRandomliste(listeJoueurs, nombreJoueurs, agent);
+        console.log(`Message opération n°${i} : Infiltration`);
         liste = `A toi de choisir parmis ces agents : \n`;
         for (let j = 1; j < nombreJoueurs; j++) {                //parcours tous les joueurs sauf l'agent
           liste = liste + `${j} : ${membersName[listeJoueurs[j]]}\n`;
         }// Fin de parcours de la liste des joueurs
         await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}${matriceOpe[indiceOperation][5]}${liste}`);    //envoi de l'opération au joueur concerné
-        identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+        identifieur = setTimeout(resultatOperation, attenteSelection, membersName, membersId, message, i, listeJoueurs[1], listeJoueurs[0], indiceOperation);
         break;
       case 1:
-        console.log(`Message : Informateur Secret`);
-        setEmpty(listeJoueurs, nombreJoueurs);
-        setRandomliste(listeJoueurs, nombreJoueurs, agent);
+        console.log(`Message opération n°${i} : Informateur Secret`);
         liste = `A toi de choisir parmis ces agents : \n`;
         for (let j = 1; j < nombreJoueurs; j++) {                //parcours tous les joueurs sauf l'agent
           liste = liste + `${j} : ${membersName[listeJoueurs[j]]}\n`;
         }// Fin de parcours de la liste des joueurs
         await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}${matriceOpe[indiceOperation][5]}${liste}`);    //envoi de l'opération au joueur concerné
-        identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+        identifieur = setTimeout(resultatOperation, attenteSelection, membersName, membersId, message, i, listeJoueurs[1], listeJoueurs[0], indiceOperation);
         break;
       case 2:
-        console.log(`Message : Rensignement Danois`);
-
+        console.log(`Message opération n°${i} : Renseignement Danois`);
         await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}${matriceOpe[indiceOperation][5]}`);    //envoi de l'opération au joueur concerné
-        identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+
+////////      //selection random du virus et du service en cas de non selection
+        identifieur = setTimeout(resultatOperation, attenteSelection, membersName, membersId, message, i, listeJoueurs[1], listeJoueurs[0], indiceOperation);
         break;
       case 3:
-        console.log(`Message : Transfert D'Espion`);
-        setEmpty(listeJoueurs, nombreJoueurs);
-        setRandomliste(listeJoueurs, nombreJoueurs, agent);
+        console.log(`Message opération n°${i} : Transfert D'Espion`);
         liste = `A toi de choisir parmis ces agents : \n`;
         for (let j = 1; j < nombreJoueurs; j++) {                //parcours tous les joueurs sauf l'agent
           liste = liste + `${j} : ${membersName[listeJoueurs[j]]}\n`;
         }// Fin de parcours de la liste des joueurs
         await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}${matriceOpe[indiceOperation][5]}${liste}`);    //envoi de l'opération au joueur concerné
-        identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+        identifieur = setTimeout(resultatOperation, attenteSelection, membersName, membersId, message, i, listeJoueurs[1], listeJoueurs[0], indiceOperation);
         break;
       case 4:
-        console.log(`Message : Ancienne Photographie`);
-
+        console.log(`Message opération n°${i} : Ancienne Photographie`);
         await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}${matriceOpe[indiceOperation][5]}`);    //envoi de l'opération au joueur concerné
-        identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+
+////////      //selection random des 2 agents du même camp
+        identifieur = setTimeout(resultatOperation, attenteSelection, membersName, membersId, message, i, listeJoueurs[1], listeJoueurs[0], indiceOperation);
         break;
       case 5:
-        console.log(`Message : Confession`);
-        setEmpty(listeJoueurs, nombreJoueurs);
-        setRandomliste(listeJoueurs, nombreJoueurs, agent);
+        console.log(`Message opération n°${i} : Confession`);
         liste = `A toi de choisir parmis ces agents : \n`;
         for (let j = 1; j < nombreJoueurs; j++) {                //parcours tous les joueurs sauf l'agent
           liste = liste + `${j} : ${membersName[listeJoueurs[j]]}\n`;
         }// Fin de parcours de la liste des joueurs
         await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}${matriceOpe[indiceOperation][5]}${liste}`);    //envoi de l'opération au joueur concerné
-        identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+        identifieur = setTimeout(resultatOperation, attenteSelection, membersName, membersId, message, i, listeJoueurs[1], listeJoueurs[0], indiceOperation);
         break;
       case 6:
-        console.log(`Message : Mauvaise Rencontre`);
-        setEmpty(listeJoueurs, nombreJoueurs);
-        setRandomliste(listeJoueurs, nombreJoueurs, agent);
+        console.log(`Message opération n°${i} : Mauvaise Rencontre`);
         liste = `A toi de choisir parmis ces agents : \n`;
         for (let j = 1; j < nombreJoueurs; j++) {                //parcours tous les joueurs sauf l'agent
           liste = liste + `${j} : ${membersName[listeJoueurs[j]]}\n`;
         }// Fin de parcours de la liste des joueurs
         await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}${matriceOpe[indiceOperation][5]}${liste}`);    //envoi de l'opération au joueur concerné
-        identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+        identifieur = setTimeout(resultatOperation, attenteSelection, membersName, membersId, message, i, listeJoueurs[1], listeJoueurs[0], indiceOperation);
         break;
       case 7:
-        console.log(`Message : Preuve Compromettante`);
-        setEmpty(listeJoueurs, nombreJoueurs);
-        setRandomliste(listeJoueurs, nombreJoueurs, agent);
+        console.log(`Message opération n°${i} : Preuve Compromettante`);
         liste = `A toi de choisir parmis ces agents : \n`;
         for (let j = 1; j < nombreJoueurs; j++) {                //parcours tous les joueurs sauf l'agent
           liste = liste + `${j} : ${membersName[listeJoueurs[j]]}\n`;
         }// Fin de parcours de la liste des joueurs
         await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}${matriceOpe[indiceOperation][5]}${liste}`);    //envoi de l'opération au joueur concerné
-        identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+        identifieur = setTimeout(resultatOperation, attenteSelection, membersName, membersId, message, i, listeJoueurs[1], listeJoueurs[0], indiceOperation);
         break;
       case 8:
-        console.log(`Message : Deserteur`);
-        setEmpty(listeJoueurs, nombreJoueurs);
-        setRandomliste(listeJoueurs, nombreJoueurs, agent);
-        liste = `A toi de choisir parmis ces agents : \n`;
-        for (let j = 1; j < nombreJoueurs; j++) {                //parcours tous les joueurs sauf l'agent
-          liste = liste + `${j} : ${membersName[listeJoueurs[j]]}\n`;
-        }// Fin de parcours de la liste des joueurs
+        console.log(`Message opération n°${i} : Deserteur`);
+        liste = `Choisit parmis :\n1 : Rester Fidèle\n2 : Deserter\n`;
         await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}${matriceOpe[indiceOperation][5]}${liste}`);    //envoi de l'opération au joueur concerné
-        identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+        identifieur = setTimeout(resultatOperation, attenteSelection, membersName, membersId, message, i, listeJoueurs[1], listeJoueurs[0], indiceOperation);
         break;
       case 9:
-        console.log(`Message : Info Anonyme`);
-
+        console.log(`Message opération n°${i} : Info Anonyme`);
         await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}${matriceOpe[indiceOperation][5]}`);    //envoi de l'opération au joueur concerné
-        identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+        identifieur = setTimeout(resultatOperation, attenteSelection, membersName, membersId, message, i, listeJoueurs[1], listeJoueurs[0], indiceOperation);
         break;
       case 10:
-        console.log(`Message : Info Secrete`);
-
+        console.log(`Message opération n°${i} : Info Secrete`);
         await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}${matriceOpe[indiceOperation][5]}`);    //envoi de l'opération au joueur concerné
-        identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+        identifieur = setTimeout(resultatOperation, attenteSelection, membersName, membersId, message, i, listeJoueurs[1], listeJoueurs[0], indiceOperation);
         break;
       case 11:
-        console.log(`Message : Agent Dormant`);
-
-        await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}${matriceOpe[indiceOperation][5]}`);    //envoi de l'opération au joueur concerné
+        console.log(`Message opération n°${i} : Agent Dormant`);
+        if(matriceRole[agent][2] == 0){
+          await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}Agent Dormant : Il s'avère que vous avez toujours été un agent double. Vous travaillez maintenant pour le VIRUS`);    //envoi de l'opération au joueur concerné
+        }else{
+          await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}Agent Dormant : Il s'avère que vous avez toujours travaillé pour Le Service`);    //envoi de l'opération au joueur concerné
+        }
         identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
         break;
       case 12:
-        console.log(`Message : Adoration`);
-
-        await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}${matriceOpe[indiceOperation][5]}`);    //envoi de l'opération au joueur concerné
+        console.log(`Message opération n°${i} : Adoration`);
+        await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]} Adoration : A partir de maintenant, pour gagner, vous devez faire gagner ${membersName[listeJoueurs[1]]}. Vous vous éprenez d’amour pour ${membersName[listeJoueurs[1]]}, dont le bonheur est la seule chose qui compte.\nVous adorez : ${membersName[listeJoueurs[1]]}\nAstuce : Essayez de découvrir à quelle équipe ${membersName[listeJoueurs[1]]} appartient, et aidez les de toutes les manières possibles.`);
         identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
         break;
       case 13:
-        console.log(`Message : Rancune`);
-
-        await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}${matriceOpe[indiceOperation][5]}`);    //envoi de l'opération au joueur concerné
+        console.log(`Message opération n°${i} : Rancune`);
+        await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]} Rancune : A partir de maintenant, pour gagner, vous devez faire emprisonner ${membersName[listeJoueurs[1]]}.\nRegardez l’horrible tête de ${membersName[listeJoueurs[1]]}. Plus rien ne compte sauf son humiliation.\nVous détestez : ${membersName[listeJoueurs[1]]}\nAstuce : Essayez de dire aux autres que vous avez obtenu une information secrète et que ${membersName[listeJoueurs[1]]} appartient au VIRUS.`);
         identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
         break;
       case 14:
-        console.log(`Message : Bouc Emissaire`);
-
-        await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}${matriceOpe[indiceOperation][5]}`);    //envoi de l'opération au joueur concerné
+        console.log(`Message opération n°${i} : Bouc Emissaire`);
+        await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]} Opération : Bouc émissaire\nA partir de maintenant, pour gagner, vous devez vous faire emprisonner. Essayez de piéger les autres agents pour qu’ils votent contre vous lors de la phase d'accusation.\nSi vous réussissez, les agents du Service et du VIRUS perdront. Votre agence n’as pas changé.\nAstuce : Essayez de dire à tout le monde que vous faisiez partie du VIRUS, mais que vous faites maintenant partie du Service.\n`);
         identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
         break;
       default:
@@ -456,11 +441,80 @@ async function phaseDOperation(membersName, membersId, message, i){
 }
 
 async function resultatOperation(membersName, membersId, message, i, cible1, cible2, indiceOperation){
-  //switch
-  
-  await bot.users.cache.get(membersId[agent]).send(`Vous avez infiltré ${cible}`);
-  identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
-
+  agent = ordreJoueurs[i];
+  switch(indiceOperation) {
+    case 0:
+      console.log(`Message opération n°${i}: Resultat d'Infiltration`);
+      await bot.users.cache.get(membersId[agent]).send(`Vous avez infiltré ${membersName[cible1]}`);
+      identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+      break;
+    case 1:
+      console.log(`Message opération n°${i} : Resultat d'Informateur Secret`);
+      await bot.users.cache.get(membersId[agent]).send(`Vous avez regardé parmis ${membersName[cible1]} et ${membersName[cible2]}`);
+      identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+      break;
+    case 2:
+      console.log(`Message opération n°${i} : Resultat de Renseignement Danois`);
+      await bot.users.cache.get(membersId[agent]).send(`Vous avez regardé parmis ${membersName[cible1]} et ${membersName[cible2]}`);
+      identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+      break;
+    case 3:
+      console.log(`Message opération n°${i} : Resultat de Transfert D'Espion`);
+//////      //effet du transfert
+      identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+      break;
+    case 4:
+      console.log(`Message opération n°${i} : Resultat d'Ancienne Photographie`);
+      await bot.users.cache.get(membersId[agent]).send(`Vous avez regardé parmis ${membersName[cible1]} et ${membersName[cible2]}`);
+      identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+      break;
+    case 5:
+      console.log(`Message opération n°${i} : Résultat de Confession`);
+      await bot.users.cache.get(membersId[agent]).send(`Vous avez montré votre role a ${membersName[cible1]} `);
+      await bot.users.cache.get(membersId[agent]).send(`${membersName[cible1]} a vue le role de l'agent`);
+      identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+      break;
+    case 6:
+      console.log(`Message opération n°${i} : Resultat de Mauvaise Rencontre`);
+      await bot.users.cache.get(membersId[agent]).send(`Vous avez montré votre role a ${membersName[cible1]} et regardé son role`);
+      await bot.users.cache.get(membersId[agent]).send(`${membersName[cible1]} a vue le role de l'agent`);
+      identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+      break;
+    case 7:
+      console.log(`Message opération n°${i} : Resultat de Preuve Compromettante`);
+      await bot.users.cache.get(membersId[agent]).send(`Vous avez demandé a  ${membersName[cible1]} de modifier les votes`);
+      await bot.users.cache.get(membersId[agent]).send(`${membersName[cible1]} choisit`);
+      identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+      break;
+    case 8:
+      console.log(`Message opération n°${i} : Resultat de Deserteur`);
+      //effet de desertion
+      identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+      break;
+    case 9:
+      console.log(`Message opération n°${i} : Resultat d'Info Anonyme`);
+      await bot.users.cache.get(membersId[agent]).send(`Vous avez vu le role de ${membersName[cible1]}`);
+      if(matriceRole[cible1][2] == 0){
+        await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}Après avoir questionné votre informateur dans un lieu top secret, il crache finalement le morceau. Vous savez maintenant que ${membersName[cible1]} travail pour Le Service`);    //envoi de l'opération au joueur concerné
+      }else{
+        await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}Après avoir questionné votre informateur dans un lieu top secret, il crache finalement le morceau. Vous savez maintenant que ${membersName[cible1]} travail pour le VIRUS`);    //envoi de l'opération au joueur concerné
+      }
+      identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+      break;
+    case 10:
+      console.log(`Message opération n°${i} : Resultat d'Info Secrete`);
+      await bot.users.cache.get(membersId[agent]).send(`Vous avez vu le role de ${membersName[cible1]}`);
+      if(matriceRole[cible1][2] == 0){
+        await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}Vous avez reçu un étrange appel. Il vous a révélé que ${membersName[cible1]} travail pour Le Service`);    //envoi de l'opération au joueur concerné
+      }else{
+        await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}Vous avez reçu un étrange appel. Il vous a révélé que ${membersName[cible1]} travail pour le VIRUS`);    //envoi de l'opération au joueur concerné
+      }
+      identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+      break;
+    default:
+      console.log(`Erreur d'indice d'opération`);
+      identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
+    }
 }
 
 async function phaseDiscution(membersName, membersId, message){
@@ -491,8 +545,20 @@ async function phaseDeVote(membersName, membersId, message, i){
     liste = `A toi de voter parmi ces agents : \n`;
     for (let j = 1; j < nombreJoueurs; j++) {                //parcours tous les joueurs
       liste = liste + `${j} : ${membersName[listeJoueurs[j]]}\n`;
-      }// Fin de parcours de la liste des joueurs
+    }// Fin de parcours de la liste des joueurs
     await bot.users.cache.get(membersId[agent]).send(liste);
+    identifieur = setTimeout(effetDuVote, attenteSelection, membersName, membersId, message, i, listeJoueurs[1])
+  }
+}
+async function effetDuVote(membersName, membersId, message, i, cible){
+  partieEnCours = 4 + nombreJoueurs +i;
+  agent = ordreJoueurs[i];
+  if(i>=nombreJoueurs){
+    identifieur = setTimeout(resultats, attenteSimple, membersName, membersId, message);
+  }else{
+    console.log(`Message perso : ${membersName[ordreJoueurs[i]]} a voté contre ${membersName[ordreJoueurs[cible]]}`);
+    recapVote[agent] = ordreJoueurs[cible];
+    voteRecu[ordreJoueurs[cible]]++;
     identifieur = setTimeout(phaseDeVote, attenteSimple, membersName, membersId, message, i+1)
   }
 }
@@ -501,7 +567,9 @@ async function resultats(membersName, membersId, message){
   partieEnCours = 4 + nombreJoueurs + nombreJoueurs;
   console.log(`Message : Resultat`);
   await message.channel.send(`Les votes sont : `);
-      //Afficher les votes en face de chaque joueur >0
+  for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs
+    await message.channel.send(`${membersName[i]} : ${voteRecu[i]}`);
+  }// Fin de parcours de la liste des joueurs
   waitSeconds(attenteSimple);
   await message.channel.send(`Les gagnants sont : `);
       //Determiner les gagnants en fonction des conditions de victoire
