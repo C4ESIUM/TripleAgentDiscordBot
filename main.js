@@ -44,7 +44,7 @@ let recap = ``;                                 //déclaration du texte de réca
 let listeJoueurs = [];
 let ordreJoueurs = [];
 let recapVote = [];                              //déclaration du tableau de récap
-let voteReçu = [];
+let voteRecu = [];
 
 let matriceRole = [];                 //déclaration de la matrice des opérations
 
