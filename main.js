@@ -49,83 +49,8 @@ let voteRecu = [];
 let matriceRole = [];                 //déclaration de la matrice des opérations
 
 let matriceOpe = [];                 //déclaration de la matrice des opérations
-//[0] : Nom de l'opération / [1] : Taux ajustable de possibilité d'avoir l'opération / [2] : Probabilité d'obtenir l'opération / [3] : Probabilité cumulée
-//[4] : texte d'intro commun / [5] texte d'intro perso / []
-matriceOpe[0] = [];
-matriceOpe[0][0] = `Infiltration : `;
-matriceOpe[0][1] = 1;
-matriceOpe[0][4] = infiltrationCommun;
-matriceOpe[0][5] = infiltrationIntro;
-matriceOpe[1] = [];
-matriceOpe[1][0] = `Informateur Secret : `;
-matriceOpe[1][1] = 2;
-matriceOpe[1][4] = informateurSecretCommun;
-matriceOpe[1][5] = informateurSecretIntro;
-matriceOpe[2] = [];
-matriceOpe[2][0] = `Renseignement Danois : `;
-matriceOpe[2][1] = 2;
-matriceOpe[2][4] = rensignementDanoisCommun;
-matriceOpe[2][5] = rensignementDanoisIntro;
-matriceOpe[3] = [];
-matriceOpe[3][0] = `Transfert d'Espion : `;
-matriceOpe[3][1] = 1;
-matriceOpe[3][4] = transfertCommun;
-matriceOpe[3][5] = transfertIntro;
-matriceOpe[4] = [];
-matriceOpe[4][0] = `Ancienne Photographie : `;
-matriceOpe[4][1] = 2;
-matriceOpe[4][4] = anciennePhotoCommun;
-matriceOpe[4][5] = anciennePhotoIntro;
-matriceOpe[5] = [];
-matriceOpe[5][0] = `Confession : `;
-matriceOpe[5][1] = 1;
-matriceOpe[5][4] = confessionCommun;
-matriceOpe[5][5] = confessionIntro;
-matriceOpe[6] = [];
-matriceOpe[6][0] = `Mauvaise rencontre : `;
-matriceOpe[6][1] = 1;
-matriceOpe[6][4] = mauvaiseRencontreCommun;
-matriceOpe[6][5] = mauvaiseRencontreIntro;
-matriceOpe[7] = [];
-matriceOpe[7][0] = `Preuve Compromettante : `;
-matriceOpe[7][1] = 0;
-matriceOpe[7][4] = preuveCompromettanteCommun;
-matriceOpe[7][5] = preuveCompromettanteIntro;
-matriceOpe[8] = [];
-matriceOpe[8][0] = `Deserteur : `;
-matriceOpe[8][1] = 0;
-matriceOpe[8][4] = deserteurCommun;
-matriceOpe[8][5] = deserteurIntro;
-matriceOpe[9] = [];
-matriceOpe[9][0] = `Info Anonyme : `;
-matriceOpe[9][1] = 1;
-matriceOpe[9][4] = infoAnonymeCommun;
-matriceOpe[9][5] = infoAnonymeIntro;
-matriceOpe[10] = [];
-matriceOpe[10][0] = `Dossier Secret : `; //InfoSecrete
-matriceOpe[10][1] = 2;
-matriceOpe[10][4] = dossierSecretCommun;
-matriceOpe[10][5] = dossierSecretIntro;
-matriceOpe[11] = [];
-matriceOpe[11][0] = `Dossier Secret : `; //Agent dormant
-matriceOpe[11][1] = 1;
-matriceOpe[11][4] = dossierSecretCommun;
-matriceOpe[11][5] = dossierSecretIntro;
-matriceOpe[12] = [];
-matriceOpe[12][0] = `Dossier Secret : `; //Adoration
-matriceOpe[12][1] = 1;
-matriceOpe[12][4] = dossierSecretCommun;
-matriceOpe[12][5] = dossierSecretIntro;
-matriceOpe[13] = [];
-matriceOpe[13][0] = `Dossier Secret : `; //Rancune
-matriceOpe[13][1] = 1;
-matriceOpe[13][4] = dossierSecretCommun;
-matriceOpe[13][5] = dossierSecretIntro;
-matriceOpe[14] = [];
-matriceOpe[14][0] = `Dossier Secret : `; //Bouc
-matriceOpe[14][1] = 0.5;
-matriceOpe[14][4] = dossierSecretCommun;
-matriceOpe[14][5] = dossierSecretIntro;
+let anciennePhotoService = [];
+let anciennePhotoVirus = [];
 
 //Toutes les actions à faire quand le bot se connecte
 bot.on("ready", function () {
@@ -187,6 +112,84 @@ async function calculTabOperations(matriceOpe) {
   }
 }
 async function affectationMatriceRole(membersName){
+  //[0] : Nom de l'opération / [1] : Taux ajustable de possibilité d'avoir l'opération / [2] : Probabilité d'obtenir l'opération / [3] : Probabilité cumulée
+  //[4] : texte d'intro commun / [5] texte d'intro perso / []
+  matriceOpe[0] = [];
+  matriceOpe[0][0] = `Infiltration : `;
+  matriceOpe[0][1] = 0;
+  matriceOpe[0][4] = infiltrationCommun;
+  matriceOpe[0][5] = infiltrationIntro;
+  matriceOpe[1] = [];
+  matriceOpe[1][0] = `Informateur Secret : `;
+  matriceOpe[1][1] = 0;
+  matriceOpe[1][4] = informateurSecretCommun;
+  matriceOpe[1][5] = informateurSecretIntro;
+  matriceOpe[2] = [];
+  matriceOpe[2][0] = `Renseignement Danois : `;
+  matriceOpe[2][1] = 1;
+  matriceOpe[2][4] = rensignementDanoisCommun;
+  matriceOpe[2][5] = rensignementDanoisIntro;
+  matriceOpe[3] = [];
+  matriceOpe[3][0] = `Transfert d'Espion : `;
+  matriceOpe[3][1] = 0;
+  matriceOpe[3][4] = transfertCommun;
+  matriceOpe[3][5] = transfertIntro;
+  matriceOpe[4] = [];
+  matriceOpe[4][0] = `Ancienne Photographie : `;
+  matriceOpe[4][1] = 0;
+  matriceOpe[4][4] = anciennePhotoCommun;
+  matriceOpe[4][5] = anciennePhotoIntro;
+  matriceOpe[5] = [];
+  matriceOpe[5][0] = `Confession : `;
+  matriceOpe[5][1] = 0;
+  matriceOpe[5][4] = confessionCommun;
+  matriceOpe[5][5] = confessionIntro;
+  matriceOpe[6] = [];
+  matriceOpe[6][0] = `Mauvaise rencontre : `;
+  matriceOpe[6][1] = 0;
+  matriceOpe[6][4] = mauvaiseRencontreCommun;
+  matriceOpe[6][5] = mauvaiseRencontreIntro;
+  matriceOpe[7] = [];
+  matriceOpe[7][0] = `Preuve Compromettante : `;
+  matriceOpe[7][1] = 0;
+  matriceOpe[7][4] = preuveCompromettanteCommun;
+  matriceOpe[7][5] = preuveCompromettanteIntro;
+  matriceOpe[8] = [];
+  matriceOpe[8][0] = `Deserteur : `;
+  matriceOpe[8][1] = 0;
+  matriceOpe[8][4] = deserteurCommun;
+  matriceOpe[8][5] = deserteurIntro;
+  matriceOpe[9] = [];
+  matriceOpe[9][0] = `Info Anonyme : `;
+  matriceOpe[9][1] = 1;
+  matriceOpe[9][4] = infoAnonymeCommun;
+  matriceOpe[9][5] = infoAnonymeIntro;
+  matriceOpe[10] = [];
+  matriceOpe[10][0] = `Dossier Secret : `; //InfoSecrete
+  matriceOpe[10][1] = 0;
+  matriceOpe[10][4] = dossierSecretCommun;
+  matriceOpe[10][5] = dossierSecretIntro;
+  matriceOpe[11] = [];
+  matriceOpe[11][0] = `Dossier Secret : `; //Agent dormant
+  matriceOpe[11][1] = 0;
+  matriceOpe[11][4] = dossierSecretCommun;
+  matriceOpe[11][5] = dossierSecretIntro;
+  matriceOpe[12] = [];
+  matriceOpe[12][0] = `Dossier Secret : `; //Adoration
+  matriceOpe[12][1] = 0;
+  matriceOpe[12][4] = dossierSecretCommun;
+  matriceOpe[12][5] = dossierSecretIntro;
+  matriceOpe[13] = [];
+  matriceOpe[13][0] = `Dossier Secret : `; //Rancune
+  matriceOpe[13][1] = 0;
+  matriceOpe[13][4] = dossierSecretCommun;
+  matriceOpe[13][5] = dossierSecretIntro;
+  matriceOpe[14] = [];
+  matriceOpe[14][0] = `Dossier Secret : `; //Bouc
+  matriceOpe[14][1] = 0;
+  matriceOpe[14][4] = dossierSecretCommun;
+  matriceOpe[14][5] = dossierSecretIntro;
+
   for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs
     matriceRole[i] = [];                          //declaration de la 2eme dimention
     matriceRole[i][0] = membersName[i];           //affectation du surnom dans la premiere collone
@@ -195,6 +198,7 @@ async function affectationMatriceRole(membersName){
       virusCount--;                               //réduction du nombre de virus a distribuer
       if(getRandomInt(10)<infiltrCount){          //10% de chance d'etre infiltré, limité a infiltrCount
         matriceRole[i][2] = 0;                    //affectation du statut infiltré dans la troisieme collone
+        anciennePhotoService.push(matriceRole[i][0]); //Ajout dans la liste des ancienne photos
         matriceRole[i][3] = 1;                    //affectation du statut normal (dans la liste des virus) dans la quatrieme collone
         nombreVirusSurListe ++;
         matriceRole[i][4] = 0;                    //affectation du statut normal dans la cinquieme collone
@@ -202,6 +206,7 @@ async function affectationMatriceRole(membersName){
         infiltrCount--;                           //réduction du nombre d'infiltrés a distribuer
       }else{                                    //Si virus, mais pas infiltré
         matriceRole[i][2] = 1;                    //affectation du statut normal dans la troisieme collone
+        anciennePhotoVirus.push(matriceRole[i][0]); //Ajout dans la liste des ancienne photos
         if(getRandomInt(10)<renegatCount){        //10% de chance d'etre renegat, limité a renegatCount
           matriceRole[i][3] = 0;                  //affectation du statut renegat (hors de la liste des virus) dans la quatrieme collone
           matriceRole[i][4] = 0;                   //affectation du statut normal dans la cinquieme collone
@@ -224,12 +229,14 @@ async function affectationMatriceRole(membersName){
       matriceRole[i][1] = 0;                      //affectation du statut service dans la deuxieme collone
       if(getRandomInt(10)<suspCount){             //10% de chance d'etre suspect, limité a suspCount
         matriceRole[i][2] = 1;                    //affectation du statut suspect dans la troisieme collone
+        anciennePhotoVirus.push(matriceRole[i][0]); //Ajout dans la liste des ancienne photos
         matriceRole[i][3] = 0;                    //affectation du statut normal (hors de la liste des virus) dans la quatrieme collone
         matriceRole[i][4] = 0;                    //affectation du statut normal dans la cinquieme collone
         matriceRole[i][5] = `${role0100}`;                     //texte correspondant a sa valeur matrice
         suspCount--;                              //réduction du nombre de suspect a distribuer
       }else{                                    //Si service, mais pas suspect
         matriceRole[i][2] = 0;                    //affectation du statut normal dans la troisieme collone
+        anciennePhotoService.push(matriceRole[i][0]); //Ajout dans la liste des ancienne photos
         if(getRandomInt(10)<tripleCount){         //10% de chance d'etre triple, limité a tripleCount
           matriceRole[i][3] = 1;                  //affectation du statut triple (dans la liste des virus) dans la quatrieme collone
           nombreVirusSurListe ++;
@@ -308,14 +315,16 @@ async function phaseDOperation(membersName, membersId, message, i){
     identifieur = setTimeout(phaseDiscution, attenteSimple, membersName, membersId, message);
   }else{
     calculTabOperations(matriceOpe);
-    let ope = getRandomInt(10000);
+    for (let k = 0; k < 15; k++) {                //parcours tous les joueurs sauf l'agent
+      console.log(matriceOpe[k][3]);
+    }// Fin de parcours de la liste des joueurs
+    let ope = getRandomInt(9999);
     agent = ordreJoueurs[i];
-    let j=0;
     indiceOperation=0;
-    while(ope > matriceOpe[j+1][3]){
-      j++;
-      if(matriceOpe[j][1] > 0 ) {indiceOperation=j;} //Si l'option est dispo, on prends son indice
+    while(ope > matriceOpe[indiceOperation][3]){
+      indiceOperation++;
     }
+    console.log(ope);
     recapOpe[agent] = matriceOpe[indiceOperation][0]; //affectation de la matrice
     matriceOpe[indiceOperation][1] = 0; //on retire l'option de la matrice pour les autres
     recap = recap + recapOpe[agent] + membersName[agent] + `\n`;
@@ -344,10 +353,22 @@ async function phaseDOperation(membersName, membersId, message, i){
         break;
       case 2:
         console.log(`Message opération n°${i} : Renseignement Danois`);
-        await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}${matriceOpe[indiceOperation][5]}`);    //envoi de l'opération au joueur concerné
-
-////////      //selection random du virus et du service en cas de non selection
-        identifieur = setTimeout(resultatOperation, attenteSelection, membersName, membersId, message, i, listeJoueurs[1], listeJoueurs[0], indiceOperation);
+        let nbApVirus = 0;
+        for (let j = 0; j < nombreJoueurs; j++) {                //parcours tous les joueurs sauf l'agent
+          nbApVirus = nbApVirus + matriceRole[j][2];
+        }// Fin de parcours de la liste des joueurs
+        if(nbApVirus == 0){
+          identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i);
+        }else if(nbApVirus == 1){
+          identifieur = setTimeout(resultatOperation, attenteSelection, membersName, membersId, message, i, listeJoueurs[1], agent, indiceOperation);
+        }else{
+          cible1 = listeJoueurs[1];
+          cible2 = getRandomInt(nombreJoueurs);
+          while(matriceRole[cible1][2] == matriceRole[cible2][2] || cible2 == agent){
+            cible2 = getRandomInt(nombreJoueurs);
+          }
+          identifieur = setTimeout(resultatOperation, attenteSelection, membersName, membersId, message, i, listeJoueurs[1], cible2, indiceOperation);
+        }
         break;
       case 3:
         console.log(`Message opération n°${i} : Transfert D'Espion`);
@@ -361,9 +382,20 @@ async function phaseDOperation(membersName, membersId, message, i){
       case 4:
         console.log(`Message opération n°${i} : Ancienne Photographie`);
         await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}${matriceOpe[indiceOperation][5]}`);    //envoi de l'opération au joueur concerné
-
-////////      //selection random des 2 agents du même camp
-        identifieur = setTimeout(resultatOperation, attenteSelection, membersName, membersId, message, i, listeJoueurs[1], listeJoueurs[0], indiceOperation);
+        if(getRandomInt(2)==1 && anciennePhotoVirus.length <1){
+          let cible1 = getRandomInt(anciennePhotoVirus.length);
+          let cible2 = getRandomInt(anciennePhotoVirus.length);
+          while(cible2 == cible1){
+            cible2 = getRandomInt(anciennePhotoVirus.length);
+          }
+        }else{
+          let cible1 = getRandomInt(anciennePhotoService.length);
+          let cible2 = getRandomInt(anciennePhotoService.length);
+          while(cible2 == cible1){
+            cible2 = getRandomInt(anciennePhotoService.length);
+          }
+        }
+        identifieur = setTimeout(resultatOperation, attenteSelection, membersName, membersId, message, i, cible1, cible2, indiceOperation);
         break;
       case 5:
         console.log(`Message opération n°${i} : Confession`);
@@ -400,12 +432,10 @@ async function phaseDOperation(membersName, membersId, message, i){
         break;
       case 9:
         console.log(`Message opération n°${i} : Info Anonyme`);
-        await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}${matriceOpe[indiceOperation][5]}`);    //envoi de l'opération au joueur concerné
         identifieur = setTimeout(resultatOperation, attenteSelection, membersName, membersId, message, i, listeJoueurs[1], listeJoueurs[0], indiceOperation);
         break;
       case 10:
         console.log(`Message opération n°${i} : Info Secrete`);
-        await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}${matriceOpe[indiceOperation][5]}`);    //envoi de l'opération au joueur concerné
         identifieur = setTimeout(resultatOperation, attenteSelection, membersName, membersId, message, i, listeJoueurs[1], listeJoueurs[0], indiceOperation);
         break;
       case 11:
@@ -445,55 +475,113 @@ async function resultatOperation(membersName, membersId, message, i, cible1, cib
   switch(indiceOperation) {
     case 0:
       console.log(`Message opération n°${i}: Resultat d'Infiltration`);
-      await bot.users.cache.get(membersId[agent]).send(`Vous avez infiltré ${membersName[cible1]}`);
+      if(matriceRole[cible1][2] == 0 && matriceRole[cible1][1] == 0){
+        await bot.users.cache.get(membersId[agent]).send(`Vous savez maintenant que ${membersName[cible1]} travaille pour Le Service`);
+      }else if(matriceRole[cible1][2] == 1 && matriceRole[cible1][1] == 1){
+        await bot.users.cache.get(membersId[agent]).send(`Vous savez maintenant que ${membersName[cible1]} est un agent du VIRUS. Si ce n’était pas déjà le cas, vous travaillez maintenant pour le VIRUS`);
+      }else{
+        await bot.users.cache.get(membersId[agent]).send(`Même après avoir traqué ${membersName[cible1]} pendant un moment, vous ne pouvez pas conclure pour qui cet agent travail. Vous savez seulement qu’il est soit un agent très bien infiltré du VIRUS, soit un agent du Service très suspect...`);
+      }
       identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
       break;
     case 1:
       console.log(`Message opération n°${i} : Resultat d'Informateur Secret`);
-      await bot.users.cache.get(membersId[agent]).send(`Vous avez regardé parmis ${membersName[cible1]} et ${membersName[cible2]}`);
+      if(matriceRole[cible1][2] == 0 && matriceRole[cible2][2] == 0){
+        await bot.users.cache.get(membersId[agent]).send(`L’informateur vous révèle que ${membersName[cible1]} et ${membersName[cible2]} sont fidèles au Service.`);
+      }else{
+        await bot.users.cache.get(membersId[agent]).send(`L’informateur vous révèle que parmis ${membersName[cible1]} et ${membersName[cible2]}, au moins l’un d’eux est un agent du VIRUS.`);
+      }
       identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
       break;
     case 2:
       console.log(`Message opération n°${i} : Resultat de Renseignement Danois`);
-      await bot.users.cache.get(membersId[agent]).send(`Vous avez regardé parmis ${membersName[cible1]} et ${membersName[cible2]}`);
+      if(cible1 == agent){
+        await bot.users.cache.get(membersId[agent]).send(`L’un de ces noms est le vôtre, Vous feriez mieux de trouver deux autres agents à incriminer.\nL’un travaille pour le VIRUS, l’autre non : ${membersName[cible2]} et Vous`);
+      }else if(cible2 == agent){
+        await bot.users.cache.get(membersId[agent]).send(`L’un de ces noms est le vôtre, Vous feriez mieux de trouver deux autres agents à incriminer.\nL’un travaille pour le VIRUS, l’autre non : ${membersName[cible1]} et Vous`);
+      }else{
+        await bot.users.cache.get(membersId[agent]).send(`La transmission cite les noms de ${membersName[cible1]} et ${membersName[cible2]}. L’un est en agent du VIRUS, l’autre non. Dommage, vous n'êtes pas assez bon en Danois pour savoir qui est dans quelle équipe.\nL’un travaille pour le VIRUS, l’autre non : ${membersName[cible1]} et ${membersName[cible2]}`);
+      }
       identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
       break;
     case 3:
       console.log(`Message opération n°${i} : Resultat de Transfert D'Espion`);
-//////      //effet du transfert
+      if(matriceRole[cible1][1] == matriceRole[cible1][2]){
+        let agence = matriceRole[cible1][1];
+        matriceRole[cible1][1] = matriceRole[agent][1];
+        matriceRole[cible1][2] = matriceRole[agent][1];
+        if(matriceRole[agent][1] == matriceRole[agent][2]){
+          matriceRole[agent][1] = agence;
+          matriceRole[agent][2] = agence;
+        }else{
+          matriceRole[agent][1] = agence;
+        }
+      }else{
+        let agence = matriceRole[cible1][1];
+        matriceRole[cible1][1] = matriceRole[agent][1];
+        if(matriceRole[agent][1] == matriceRole[agent][2]){
+          matriceRole[agent][1] = agence;
+          matriceRole[agent][2] = agence;
+        }else{
+          matriceRole[agent][1] = agence;
+        }
+      }
       identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
       break;
     case 4:
       console.log(`Message opération n°${i} : Resultat d'Ancienne Photographie`);
-      await bot.users.cache.get(membersId[agent]).send(`Vous avez regardé parmis ${membersName[cible1]} et ${membersName[cible2]}`);
+      if(matriceRole[cible1][2] == matriceRole[cible2][2]){  //////A corriger, c'est actuel, alors que la photo et au debut
+        await bot.users.cache.get(membersId[agent]).send(`Les photos montrent qu’au début, ${membersName[cible1]} et ${membersName[cible2]} travaillaient pour la même agence.\nTravaillent pour la même agence : ${membersName[cible1]} & ${membersName[cible2]}`);
+      }else{
+        await bot.users.cache.get(membersId[agent]).send(`Erreur`);
+      }
       identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
       break;
     case 5:
       console.log(`Message opération n°${i} : Résultat de Confession`);
-      await bot.users.cache.get(membersId[agent]).send(`Vous avez montré votre role a ${membersName[cible1]} `);
-      await bot.users.cache.get(membersId[agent]).send(`${membersName[cible1]} a vue le role de l'agent`);
+      if(matriceRole[agent][2] == 0){
+        await bot.users.cache.get(membersId[cible1]).send(`${membersName[agent]} travaillaient pour Le Service`);
+      }else{
+        await bot.users.cache.get(membersId[cible1]).send(`${membersName[agent]} travaillaient pour le VIRUS`);
+      }
+      await message.channel.send(`${membersName[agent]} montré son agence à ${membersName[cible1]}`);
       identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
       break;
     case 6:
       console.log(`Message opération n°${i} : Resultat de Mauvaise Rencontre`);
-      await bot.users.cache.get(membersId[agent]).send(`Vous avez montré votre role a ${membersName[cible1]} et regardé son role`);
-      await bot.users.cache.get(membersId[agent]).send(`${membersName[cible1]} a vue le role de l'agent`);
+      if(matriceRole[agent][2] == 0 && matriceRole[cible1][2] == 0){
+        await bot.users.cache.get(membersId[agent]).send(`Vous deux travaillez pour Le Service`);
+        await bot.users.cache.get(membersId[cible1]).send(`Vous deux travaillez pour Le Service`);
+      }else if(matriceRole[agent][2] == 1 && matriceRole[cible1][2] == 1){
+        await bot.users.cache.get(membersId[agent]).send(`Vous deux travaillez pour le VIRUS`);
+        await bot.users.cache.get(membersId[cible1]).send(`Vous deux travaillez pour le VIRUS`);
+      }else{
+        await bot.users.cache.get(membersId[agent]).send(`L’un de vous travail pour le VIRUS`);
+        await bot.users.cache.get(membersId[cible1]).send(`L’un de vous travail pour le VIRUS`);
+      }
+      await message.channel.send(`${membersName[agent]} et ${membersName[cible1]} ont regardé leur agence`);
       identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
       break;
     case 7:
       console.log(`Message opération n°${i} : Resultat de Preuve Compromettante`);
-      await bot.users.cache.get(membersId[agent]).send(`Vous avez demandé a  ${membersName[cible1]} de modifier les votes`);
-      await bot.users.cache.get(membersId[agent]).send(`${membersName[cible1]} choisit`);
+      if(cible1 == 2){ //voter contre
+//////
+      }else {//proteger
+//////
+      }
       identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
       break;
     case 8:
       console.log(`Message opération n°${i} : Resultat de Deserteur`);
-      //effet de desertion
+      if(cible1 == 2 && matriceRole[agent][2] == 0){ //deserter le service
+//////        //nouvelle condition de vote
+      }else if(cible1 == 2 && matriceRole[agent][2] == 1){//deserter le virus
+//////        //nouvelle condition de victoire
+      }
       identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i+1);
       break;
     case 9:
       console.log(`Message opération n°${i} : Resultat d'Info Anonyme`);
-      await bot.users.cache.get(membersId[agent]).send(`Vous avez vu le role de ${membersName[cible1]}`);
       if(matriceRole[cible1][2] == 0){
         await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}Après avoir questionné votre informateur dans un lieu top secret, il crache finalement le morceau. Vous savez maintenant que ${membersName[cible1]} travail pour Le Service`);    //envoi de l'opération au joueur concerné
       }else{
@@ -503,7 +591,6 @@ async function resultatOperation(membersName, membersId, message, i, cible1, cib
       break;
     case 10:
       console.log(`Message opération n°${i} : Resultat d'Info Secrete`);
-      await bot.users.cache.get(membersId[agent]).send(`Vous avez vu le role de ${membersName[cible1]}`);
       if(matriceRole[cible1][2] == 0){
         await bot.users.cache.get(membersId[agent]).send(`${matriceOpe[indiceOperation][0]}Vous avez reçu un étrange appel. Il vous a révélé que ${membersName[cible1]} travail pour Le Service`);    //envoi de l'opération au joueur concerné
       }else{
@@ -539,7 +626,7 @@ async function phaseDeVote(membersName, membersId, message, i){
   if(i>=nombreJoueurs){
     identifieur = setTimeout(resultats, attenteSimple, membersName, membersId, message);
   }else{
-    console.log(`Message perso : Voter contre un joueur`);
+    console.log(`Message perso pour ${agent} : Voter contre un joueur`);
     setEmpty(listeJoueurs, nombreJoueurs);
     setRandomliste(listeJoueurs, nombreJoueurs, agent)
     liste = `A toi de voter parmi ces agents : \n`;
@@ -556,9 +643,9 @@ async function effetDuVote(membersName, membersId, message, i, cible){
   if(i>=nombreJoueurs){
     identifieur = setTimeout(resultats, attenteSimple, membersName, membersId, message);
   }else{
-    console.log(`Message perso : ${membersName[ordreJoueurs[i]]} a voté contre ${membersName[ordreJoueurs[cible]]}`);
+    console.log(`Message perso : ${membersName[ordreJoueurs[i]]} a voté contre ${membersName[cible]}`);
     recapVote[agent] = ordreJoueurs[cible];
-    voteRecu[ordreJoueurs[cible]]++;
+    voteRecu[cible] = voteRecu[cible] + 1;
     identifieur = setTimeout(phaseDeVote, attenteSimple, membersName, membersId, message, i+1)
   }
 }
