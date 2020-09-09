@@ -45,6 +45,7 @@ let listeJoueurs = [];
 let ordreJoueurs = [];
 let recapVote = [];                              //déclaration du tableau de récap
 let voteRecu = [];
+let resultat = ``;
 
 let matriceRole = [];                 //déclaration de la matrice des opérations
 
@@ -75,7 +76,6 @@ async function setEmpty(listeJoueurs, taille) {
     listeJoueurs[i] = 0;
   }
 }
-
 async function setRandom(ordreJoueurs, taille) {
   for(let i=0;i<taille;i++){
     ordreJoueurs[i] = -1;
@@ -124,7 +124,7 @@ async function affectationMatriceRole(membersName){
   //[4] : texte d'intro commun / [5] texte d'intro perso / []
   matriceOpe[0] = [];
   matriceOpe[0][0] = `Infiltration : `;
-  matriceOpe[0][1] = 0;
+  matriceOpe[0][1] = 1;
   matriceOpe[0][4] = infiltrationCommun;
   matriceOpe[0][5] = infiltrationIntro;
   matriceOpe[1] = [];
@@ -134,7 +134,7 @@ async function affectationMatriceRole(membersName){
   matriceOpe[1][5] = informateurSecretIntro;
   matriceOpe[2] = [];
   matriceOpe[2][0] = `Renseignement Danois : `;
-  matriceOpe[2][1] = 1;
+  matriceOpe[2][1] = 0;
   matriceOpe[2][4] = rensignementDanoisCommun;
   matriceOpe[2][5] = rensignementDanoisIntro;
   matriceOpe[3] = [];
@@ -169,12 +169,12 @@ async function affectationMatriceRole(membersName){
   matriceOpe[8][5] = deserteurIntro;
   matriceOpe[9] = [];
   matriceOpe[9][0] = `Info Anonyme : `;
-  matriceOpe[9][1] = 1;
+  matriceOpe[9][1] = 0;
   matriceOpe[9][4] = infoAnonymeCommun;
   matriceOpe[9][5] = infoAnonymeIntro;
   matriceOpe[10] = [];
   matriceOpe[10][0] = `Dossier Secret : `; //InfoSecrete
-  matriceOpe[10][1] = 0;
+  matriceOpe[10][1] = 1;
   matriceOpe[10][4] = dossierSecretCommun;
   matriceOpe[10][5] = dossierSecretIntro;
   matriceOpe[11] = [];
@@ -278,6 +278,8 @@ async function debutDePartie(membersName, membersId, message){
   suspCount = nombreVirus;              //nombre maxi d'agent suspect qui décrois quand on les affect
   tripleCount = nombreVirus-1;          //nombre maxi d'agent triple qui décrois quand on les affect
   loyalCount = nombreVirus;             //nombre maxi d'agent loyaux qui décrois quand on les affect
+  setEmpty(recapVote, nombreJoueurs);
+  setEmpty(voteRecu, nombreJoueurs);
 
   console.log(`Message : Briefing`);
   await message.channel.send(`${intro1}${nombreVirus}${intro2}${nombreJoueurs}${intro3}`);
@@ -365,7 +367,7 @@ async function phaseDOperation(membersName, membersId, message, i){
         for (let j = 0; j < nombreJoueurs; j++) {                //parcours tous les joueurs sauf l'agent
           nbApVirus = nbApVirus + matriceRole[j][2];
         }// Fin de parcours de la liste des joueurs
-        if(nbApVirus == 0){
+        if(nbApVirus == 0 ||nbApVirus == nombreJoueurs){
           identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, i);
         }else if(nbApVirus == 1){
           identifieur = setTimeout(resultatOperation, attenteSelection, membersName, membersId, message, i, listeJoueurs[1], agent, indiceOperation);
@@ -623,8 +625,6 @@ async function phaseDAccusation(membersName, membersId, message){
   partieEnCours = 3 + nombreJoueurs;
   console.log(`Message : Phase d'accusation`);
   await message.channel.send(`${phaseAccusation}`);
-  setEmpty(recapVote, nombreJoueurs);
-  setEmpty(voteRecu, nombreJoueurs);
   setRandom(ordreJoueurs, nombreJoueurs);
   identifieur = setTimeout(phaseDeVote, attenteSimple, membersName, membersId, message, 0)
 }
@@ -661,14 +661,35 @@ async function effetDuVote(membersName, membersId, message, i, cible){
 
 async function resultats(membersName, membersId, message){
   partieEnCours = 4 + nombreJoueurs + nombreJoueurs;
+  let gagnants = ``;
+  let emprisonne = 0;
+  let egalite = 0;
   console.log(`Message : Resultat`);
-  await message.channel.send(`Les votes sont : `);
-  for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les joueurs
-    await message.channel.send(`${membersName[i]} : ${voteRecu[i]}`);
-  }// Fin de parcours de la liste des joueurs
+  resultat += `Les votes sont : \n`;
+  for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les votes
+    if(voteRecu[i] >0){
+      resultat += `${membersName[i]} : ${voteRecu[i]}\n`
+    }
+    if (voteRecu[i] > voteRecu[emprisonne]){
+      emprisonne = i;
+      egalite = 0;
+    }else if(voteRecu[i] == voteRecu[emprisonne]){
+      egalite = 1;
+    }
+  }// Fin de parcours de la liste des votes
+  if(egalite == 1 || matriceRole[emprisonne][2] == 0){ //victoire virus
+    for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les nomsJoueurs
+      if(matriceRole[i][1] == 1){gagnants += membersName[i] + `\n`}
+    }
+    resultat += `\nVictoire des VIRUS !\n\nLes gagnants sont :\n` + gagnants;
+  }else{                                              //victoire service
+    for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les nomsJoueurs
+      if(matriceRole[i][1] == 0){gagnants += membersName[i] + `\n`}
+    }
+    resultat += `\nVictoire du service !\n\nLes gagnants sont :\n` + gagnants;
+  }
+  await message.channel.send(resultat);
   waitSeconds(attenteSimple);
-  await message.channel.send(`Les gagnants sont : `);
-      //Determiner les gagnants en fonction des conditions de victoire
   identifieur = setTimeout(finDePartie, attenteSimple, membersName, membersId, message);
 }
 
