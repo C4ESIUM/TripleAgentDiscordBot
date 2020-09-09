@@ -72,11 +72,14 @@ async function waitSeconds(milliseconds) {
 
 async function setEmpty(listeJoueurs, taille) {
   for(let i=0;i<taille;i++){
-    listeJoueurs[i] = -1;
+    listeJoueurs[i] = 0;
   }
 }
 
 async function setRandom(ordreJoueurs, taille) {
+  for(let i=0;i<taille;i++){
+    ordreJoueurs[i] = -1;
+  }
   for(let i=0;i< taille; i++){
     let val = getRandomInt(taille)
     while(ordreJoueurs[val] != -1){
@@ -86,6 +89,9 @@ async function setRandom(ordreJoueurs, taille) {
   }
 }
 async function setRandomliste(listeJoueurs, taille, indice) {
+  for(let i=0;i<taille;i++){
+    listeJoueurs[i] = -1;
+  }
   listeJoueurs[0] = indice;
   for(let i=0;i< taille; i++){
     if(i!=indice){
@@ -97,6 +103,7 @@ async function setRandomliste(listeJoueurs, taille, indice) {
     }
   }
 }
+
 async function calculTabOperations(matriceOpe) {
   let totalOpe = 0;
   let nombreOpe = 0;
@@ -111,6 +118,7 @@ async function calculTabOperations(matriceOpe) {
     if(i>0){ matriceOpe[i][3] = Math.round(matriceOpe[i][2]*100 + matriceOpe[i-1][3]); }else{ matriceOpe[i][3] = Math.round(matriceOpe[i][2]*100); }
   }
 }
+
 async function affectationMatriceRole(membersName){
   //[0] : Nom de l'opération / [1] : Taux ajustable de possibilité d'avoir l'opération / [2] : Probabilité d'obtenir l'opération / [3] : Probabilité cumulée
   //[4] : texte d'intro commun / [5] texte d'intro perso / []
@@ -259,6 +267,8 @@ async function affectationMatriceRole(membersName){
   }// Fin de parcours de la liste des joueurs
 }
 
+
+
 async function debutDePartie(membersName, membersId, message){
   partieEnCours = 1;
   nombreJoueurs = membersId.length;            //nombre de joueurs présents pour la partie
@@ -304,7 +314,6 @@ async function debutDePartie(membersName, membersId, message){
     recapOpe[i] = ``;         //on a besoin de cette partie ???
   }// Fin de parcours de la liste des joueurs
   recap = ``;
-  setEmpty(ordreJoueurs, nombreJoueurs);
   setRandom(ordreJoueurs, nombreJoueurs);
   identifieur = setTimeout(phaseDOperation, attenteSimple, membersName, membersId, message, 0);
 }
@@ -330,7 +339,6 @@ async function phaseDOperation(membersName, membersId, message, i){
     recap = recap + recapOpe[agent] + membersName[agent] + `\n`;
     console.log(`Message : Opération d'un joueur`);
     await message.channel.send(`${matriceOpe[indiceOperation][0]}${membersName[agent]}${matriceOpe[indiceOperation][4]}`);
-    setEmpty(listeJoueurs, nombreJoueurs);
     setRandomliste(listeJoueurs, nombreJoueurs, agent);
     switch(indiceOperation) {
       case 0:
@@ -615,7 +623,8 @@ async function phaseDAccusation(membersName, membersId, message){
   partieEnCours = 3 + nombreJoueurs;
   console.log(`Message : Phase d'accusation`);
   await message.channel.send(`${phaseAccusation}`);
-  setEmpty(ordreJoueurs, nombreJoueurs);
+  setEmpty(recapVote, nombreJoueurs);
+  setEmpty(voteRecu, nombreJoueurs);
   setRandom(ordreJoueurs, nombreJoueurs);
   identifieur = setTimeout(phaseDeVote, attenteSimple, membersName, membersId, message, 0)
 }
@@ -627,7 +636,6 @@ async function phaseDeVote(membersName, membersId, message, i){
     identifieur = setTimeout(resultats, attenteSimple, membersName, membersId, message);
   }else{
     console.log(`Message perso pour ${agent} : Voter contre un joueur`);
-    setEmpty(listeJoueurs, nombreJoueurs);
     setRandomliste(listeJoueurs, nombreJoueurs, agent)
     liste = `A toi de voter parmi ces agents : \n`;
     for (let j = 1; j < nombreJoueurs; j++) {                //parcours tous les joueurs
@@ -637,6 +645,7 @@ async function phaseDeVote(membersName, membersId, message, i){
     identifieur = setTimeout(effetDuVote, attenteSelection, membersName, membersId, message, i, listeJoueurs[1])
   }
 }
+
 async function effetDuVote(membersName, membersId, message, i, cible){
   partieEnCours = 4 + nombreJoueurs +i;
   agent = ordreJoueurs[i];
@@ -645,7 +654,7 @@ async function effetDuVote(membersName, membersId, message, i, cible){
   }else{
     console.log(`Message perso : ${membersName[ordreJoueurs[i]]} a voté contre ${membersName[cible]}`);
     recapVote[agent] = ordreJoueurs[cible];
-    voteRecu[cible] = voteRecu[cible] + 1;
+    voteRecu[cible]++;
     identifieur = setTimeout(phaseDeVote, attenteSimple, membersName, membersId, message, i+1)
   }
 }
