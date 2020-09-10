@@ -14,7 +14,7 @@ const attenteSimple = 2000
 const attenteSelection = 10000
 const attenteLongue = 20000
 
-const minJoueur = 1
+const minJoueur = 2
 const maxJoueur = 9
 let partieEnCours = 0;
 let identifieur = 0;
@@ -36,7 +36,6 @@ let suspCount;              //nombre maxi d'agent suspect qui décrois quand on 
 let renegatCount = 1;                     //nombre maxi d'agent renegat qui décrois quand on les affect
 let tripleCount;          //nombre maxi d'agent triple qui décrois quand on les affect
 let loyalCount;             //nombre maxi d'agent loyaux qui décrois quand on les affect
-
 let messageAnomalieListeVirus = ``;       //Message d'exception pour virus
 let indiceOperation;                       //Operation reçu par le joueur
 let recapOpe = [];                              //déclaration du tableau de récap
@@ -46,6 +45,18 @@ let ordreJoueurs = [];
 let recapVote = [];                              //déclaration du tableau de récap
 let voteRecu = [];
 let resultat = ``;
+
+//variables des conditions de victoire particulieres
+let adorationCible = -1;
+let adorationAgent = -1;
+let adorationVic = 0;
+let rancuneCible = -1;
+let rancuneAgent = -1;
+let rancuneVic = 0;
+let bouqAgent = -1;
+let bouqVic = 0;
+let desertAgentVirus = -1;
+let desertAgentVic = -1;
 
 let matriceRole = [];                 //déclaration de la matrice des opérations
 
@@ -63,6 +74,233 @@ function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
 
+const defaults = {
+	timeout: 30,
+	color: 2555834,
+	triggers: {newPoll: '!newpoll', vote: '!vote', results: '!results'},
+	appName: 'Votemaster'
+};
+var pollIndex = 0, polls = new Map();
+
+// The corresponding emojis are used as unique keys for choices within each poll object
+const emoji = {
+	numbers: ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten']
+		.map((value, index) => [String(index), `:${value}:`]),
+	letters: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+		.map(value => [value, `:regional_indicator_${value}:`]),
+	yn: [['yes','**Yes**'],['no','**No**']],
+	maybe: ['maybe','**Maybe**']
+};
+
+class Poll {
+	constructor(opt) {
+		var args = opt.arguments;
+		this.name = opt.name;
+		this.id = pollIndex;
+			pollIndex++;
+
+		this.choices = new Map();
+		opt.choices.forEach((value, index) => {
+			this.choices.set(emoji[opt.emojiType][index][0], {
+				name: value,
+				emoji: emoji[opt.emojiType][index][1],
+				votes: 0
+			});
+		});
+		if(args.maybe || args.idk) {
+			this.choices.set(emoji.maybe[0], {
+				name: 'I don\'t know.',
+				emoji: emoji.maybe[1],
+				votes: 0
+			});
+		}
+
+		this.disallowEdits = args.lock || false;
+		this.blind = args.blind || false;
+		this.reactionVoting = args.reactions || args.rxn || false;
+		this.allowMultipleVotes = this.reactionVoting || args.mult || args.multiple || false;
+		this.restrictRole = args.role || false;
+		this.dontCloseEarly = args.lo || args.leaveopen || args.dontcloseearly || false;
+		this.timeout = opt.timeout || 30;
+		this.color = opt.color;
+
+		this.footNote = opt.notes || ' ';
+		this.footNote += `${opt.notes ? '| ' : ''}This is Poll #${this.id}. It will expire in ${this.timeout} minutes.`;
+
+		this.open = false;
+		this.totalVotes = 0;
+
+		this.voters = new Map();
+
+		this.server = opt.server;
+
+		this.timeCreated = new Date();
+	}
+
+	// Function to initiate timer
+	startTimer() {
+		this.open = true;
+		setTimeout(function() {
+			this.open = false;
+		}.bind(this), this.timeout * 60 * 1000);
+	}
+
+	// Log votes (if the poll is open and unlocked/user hasn't voted)
+	vote(key, user) {
+		console.log(key, this.choices);
+		if(this.open) {
+			if(this.lock && this.voters.get(user.id)) {
+				return {
+					success: false,
+					reason: 'lock',
+					message: "Sorry, this is a locked poll (you can't edit your vote) and you've already voted."
+				};
+			} else if(!this.choices.get(key)) {
+				return {
+					success: false,
+					reason: 'invalid',
+					message: "That option is not a valid choice, so I can't log your vote. Try sending just the letter, number, or word that corresponds with the choice."
+				};
+			} else if(this.voters.get(user.id)) {
+				// User has already voted, we need to change their vote
+				let oldVoter = this.voters.get(user.id);
+				this.choices.get(oldVoter.vote.choice).votes--;
+
+				this.choices.get(key).votes++;
+				this.voters.set(user.id, {
+					user: user,
+					vote: {
+						time: new Date(),
+						choice: key
+					}
+				});
+				return {
+					success: true,
+					reason: '',
+					message: `Great, I changed your vote to "${this.choices.get(key).name}"!`
+				};
+
+			} else {
+				this.choices.get(key).votes++;
+				// While we technically *could* use the user object as the key, that would be difficult to access. id should be unique.
+				this.voters.set(user.id, {
+					user: user,
+					vote: {
+						time: new Date(),
+						choice: key
+					}
+				});
+				return {
+					success: true,
+					reason: '',
+					message: `Great, I logged your vote for "${this.choices.get(key).name}"!`
+				};
+			}
+		} else {
+			return {
+				sucess: false,
+				reason: 'timeout',
+				message: "Sorry, this poll has timed out and can no longer be voted on."
+			};
+		}
+	}
+
+	close() {
+		// Calling close() on a closed poll has no effect
+		if(this.open) {
+			this.open = false;
+			return true;
+		} else return false;
+	}
+
+	get chart() {
+		// TODO generate charts of results
+		return null;
+	}
+}
+
+function generateDiscordEmbed(poll, type) {
+	var embed = {}, choiceList = ``, resultsList = ``;
+	poll.choices.forEach((choice, key) => {
+		choiceList += `${choice.emoji} - ${choice.name} \n`;
+		resultsList += `***${choice.votes} votes*** \n`;
+	});
+
+	switch(type) {
+		case 'poll':
+			embed = {
+				title: `Poll ${poll.id}: ${poll.name}`,
+				description: `To vote, reply with\`!vote choice\` within the next ${poll.timeout} minutes. For example, "!vote ${poll.choices.keys().next().value}". If multiple polls are open, you\'ll have to specify which one using its number and a pound sign: \`!vote #${poll.id} choice\`.`,
+				color: poll.color,
+				timestamp: poll.timeCreated,
+				footer: {
+					text: poll.footNote
+				},
+				author: {
+					name: defaults.appName
+				},
+				fields: [{
+					name: `Choices:`,
+					value: choiceList
+				}]
+			};
+			break;
+		case 'results':
+			//TODO: Order choices in results based on number of votes
+
+			embed = {
+				title: `*Results* - Poll ${poll.id}: ${poll.name}`,
+				description: poll.open ? `This poll is still open, so these results may change.` : `This poll has closed and cannot be voted on.`,
+				color: poll.color,
+				timestamp: new Date(),
+				footer: {
+					text: `For more detailed results, use the \`--users\` flag.`
+				},
+				author: {
+					name: defaults.appName
+				},
+				fields: [{
+					name: `Choices:`,
+					value: choiceList,
+					inline: true
+				}, {
+					name: `Results:`,
+					value: resultsList,
+					inline: true
+				}]
+			};
+			break;
+		case 'detailResults':
+			//TODO: Order choices in results based on number of votes
+
+			embed = {
+				title: `*Results* - Poll ${poll.id}: ${poll.name}`,
+				description: poll.open ? `This poll is still open, so these results may change.` : `This poll has closed and cannot be voted on.`,
+				color: poll.color,
+				timestamp: new Date(),
+				footer: {
+					text: `We don't have detailed results capability yet.`
+				},
+				author: {
+					name: defaults.appName
+				},
+				fields: [{
+					name: `Choices:`,
+					value: choiceList,
+					inline: true
+				}, {
+					name: `Results:`,
+					value: resultsList,
+					inline: true
+				}]
+			};
+	}
+
+	return embed;
+}
+
+
+
 async function waitSeconds(milliseconds) {
   current = new Date();
   end = current.getTime() + milliseconds;
@@ -70,7 +308,6 @@ async function waitSeconds(milliseconds) {
     current = new Date();
   }
 }
-
 async function setEmpty(listeJoueurs, taille) {
   for(let i=0;i<taille;i++){
     listeJoueurs[i] = 0;
@@ -124,7 +361,7 @@ async function affectationMatriceRole(membersName){
   //[4] : texte d'intro commun / [5] texte d'intro perso / []
   matriceOpe[0] = [];
   matriceOpe[0][0] = `Infiltration : `;
-  matriceOpe[0][1] = 1;
+  matriceOpe[0][1] = 0;
   matriceOpe[0][4] = infiltrationCommun;
   matriceOpe[0][5] = infiltrationIntro;
   matriceOpe[1] = [];
@@ -174,7 +411,7 @@ async function affectationMatriceRole(membersName){
   matriceOpe[9][5] = infoAnonymeIntro;
   matriceOpe[10] = [];
   matriceOpe[10][0] = `Dossier Secret : `; //InfoSecrete
-  matriceOpe[10][1] = 1;
+  matriceOpe[10][1] = 0;
   matriceOpe[10][4] = dossierSecretCommun;
   matriceOpe[10][5] = dossierSecretIntro;
   matriceOpe[11] = [];
@@ -184,12 +421,12 @@ async function affectationMatriceRole(membersName){
   matriceOpe[11][5] = dossierSecretIntro;
   matriceOpe[12] = [];
   matriceOpe[12][0] = `Dossier Secret : `; //Adoration
-  matriceOpe[12][1] = 0;
+  matriceOpe[12][1] = 1;
   matriceOpe[12][4] = dossierSecretCommun;
   matriceOpe[12][5] = dossierSecretIntro;
   matriceOpe[13] = [];
   matriceOpe[13][0] = `Dossier Secret : `; //Rancune
-  matriceOpe[13][1] = 0;
+  matriceOpe[13][1] = 1;
   matriceOpe[13][4] = dossierSecretCommun;
   matriceOpe[13][5] = dossierSecretIntro;
   matriceOpe[14] = [];
@@ -278,6 +515,19 @@ async function debutDePartie(membersName, membersId, message){
   suspCount = nombreVirus;              //nombre maxi d'agent suspect qui décrois quand on les affect
   tripleCount = nombreVirus-1;          //nombre maxi d'agent triple qui décrois quand on les affect
   loyalCount = nombreVirus;             //nombre maxi d'agent loyaux qui décrois quand on les affect
+
+  //variables des conditions de victoire particulieres
+  adorationCible = -1;
+  adorationAgent = -1;
+  adorationVic = 0;
+  rancuneCible = -1;
+  rancuneAgent = -1;
+  rancuneVic = 0;
+  bouqAgent = -1;
+  bouqVic = 0;
+  desertAgentVirus = -1;
+  desertAgentVic = 1;
+
   setEmpty(recapVote, nombreJoueurs);
   setEmpty(voteRecu, nombreJoueurs);
 
@@ -655,6 +905,9 @@ async function effetDuVote(membersName, membersId, message, i, cible){
     console.log(`Message perso : ${membersName[ordreJoueurs[i]]} a voté contre ${membersName[cible]}`);
     recapVote[agent] = ordreJoueurs[cible];
     voteRecu[cible]++;
+    if(cible == desertAgentVirus && matriceRole[cible][1] == 1 && matriceRole[agent][1] == 1){
+      desertAgentVic = 0;
+    }
     identifieur = setTimeout(phaseDeVote, attenteSimple, membersName, membersId, message, i+1)
   }
 }
@@ -677,14 +930,36 @@ async function resultats(membersName, membersId, message){
       egalite = 1;
     }
   }// Fin de parcours de la liste des votes
+  if(egalite == 1 ){
+    resultat += `=> Personne n'est emprisonné !\n`;
+  }else{
+    resultat += `=> ${membersName[emprisonne]} est emprisonné !\n`;
+  }
+  if (emprisonne == rancuneCible){rancuneVic = 1}
   if(egalite == 1 || matriceRole[emprisonne][2] == 0){ //victoire virus
     for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les nomsJoueurs
-      if(matriceRole[i][1] == 1){gagnants += membersName[i] + `\n`}
+      if(rancuneVic == 1 && rancuneAgent == i){
+        gagnants += membersName[i] + `(devais faire emprisonner ${membersName[emprisonné]})\n`
+      }else if(matriceRole[i][1] == 1){
+        gagnants += membersName[i] + `\n`
+      }
+      if(adorationCible == i){
+        adorationVic = 1;
+        gagnants += membersName[adorationAgent] + `(devais faire gagner ${membersName[adorationCible]})\n`
+      }
     }
     resultat += `\nVictoire des VIRUS !\n\nLes gagnants sont :\n` + gagnants;
-  }else{                                              //victoire service
+  }else{ //victoire service
     for (let i = 0; i < nombreJoueurs; i++) {                //parcours tous les nomsJoueurs
-      if(matriceRole[i][1] == 0){gagnants += membersName[i] + `\n`}
+      if(rancuneVic == 1 && rancuneAgent == i){
+        gagnants += membersName[i] + `(devais faire emprisonner ${membersName[emprisonné]})\n`
+      }else if(matriceRole[i][1] == 0){
+        gagnants += membersName[i] + `\n`
+      }
+      if(adorationCible == i){
+        adorationVic = 1;
+        gagnants += membersName[adorationAgent] + `(devais faire gagner ${membersName[adorationCible]})\n`
+      }
     }
     resultat += `\nVictoire du service !\n\nLes gagnants sont :\n` + gagnants;
   }
